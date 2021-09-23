@@ -3,10 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable-v24/ic_baseline_location_off_24.xml" value="0.23333333333333334" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/ic_tracker_24.xml" value="0.14635416666666667" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_statistics.xml" value="0.22708333333333333" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_tracker.xml" value="0.22708333333333333" />
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_tracking_session.xml" value="0.2171875" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.264" />
       </map>
     </option>

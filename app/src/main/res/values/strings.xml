@@ -2,6 +2,14 @@
     <string name="app_name">SportTrackerApp</string>
     <string name="tracker_label">Tracker</string>
     <string name="statistics_label">Statistics</string>
+    <string name="new_tracking_session">new session</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="start_tracking">start tracking</string>
+    <string name="stop_tracking">stop tracking</string>
+    <string name="long_lat_placeholder">Placeholder text for geolocation</string>
+    <string name="address_placeholder">Placeholder text for address</string>
+    <string name="travel_distance">Distance:</string>
+    <string name="travel_speed">Speed:</string>
 </resources>
