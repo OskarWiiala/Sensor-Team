@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">SportTrackerApp</string>
     <string name="tracker_label">Tracker</string>
+    <string name="history_label">History</string>
     <string name="statistics_label">Statistics</string>
     <string name="new_tracking_session">new session</string>
     <!-- TODO: Remove or change this placeholder text -->

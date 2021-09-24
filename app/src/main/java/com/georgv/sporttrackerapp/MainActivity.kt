@@ -21,8 +21,13 @@ class MainActivity : AppCompatActivity() {
                     navigateToTracker()
                     true
                 }
-                R.id.statistics -> {
+                R.id.history -> {
                     // Respond to navigation item 2 click
+                    navigateToHistory()
+                    true
+                }
+                R.id.statistics -> {
+                    // Respond to navigation item 3 click
                     navigateToStatistics()
                     true
                 }
@@ -35,6 +40,13 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity.kt","BottomNavigation tracker clicked")
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace<TrackerFragment>(R.id.fragmentContainer)
+        transaction.commit()
+    }
+
+    private fun navigateToHistory() {
+        Log.d("MainActivity.kt","BottomNavigation history clicked")
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace<HistoryFragment>(R.id.fragmentContainer)
         transaction.commit()
     }
 

@@ -5,6 +5,13 @@
         android:enabled="true"
         android:icon="@drawable/ic_tracker_24"
         android:title="@string/tracker_label"/>
+
+    <item
+        android:id="@+id/history"
+        android:enabled="true"
+        android:icon="@drawable/ic_history_24"
+        android:title="@string/history_label"/>
+
     <item
         android:id="@+id/statistics"
         android:enabled="true"
