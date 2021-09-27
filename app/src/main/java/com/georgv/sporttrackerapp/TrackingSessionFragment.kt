@@ -1,4 +1,4 @@
-package com.georgv.sporttrackerapp
+ package com.georgv.sporttrackerapp
 
 import android.content.Context
 import android.content.pm.PackageManager
