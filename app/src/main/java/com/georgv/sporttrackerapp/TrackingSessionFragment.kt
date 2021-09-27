@@ -1,12 +1,12 @@
 package com.georgv.sporttrackerapp
 
+import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,14 +16,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import com.georgv.sporttrackerapp.customHandlers.Permissions
 import com.google.android.material.button.MaterialButton
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import kotlin.math.roundToLong
 
 class TrackingSessionFragment : Fragment(), LocationListener {
@@ -37,9 +38,11 @@ class TrackingSessionFragment : Fragment(), LocationListener {
 
     private var currentLatitude: Double = 0.00
     private var currentLongitude: Double = 0.00
-    private var startingLocation: GeoPoint = GeoPoint(0.0, 0.0)
+    private var previousLoc: GeoPoint = GeoPoint(0.0, 0.0)
     private var addressValue: String = "No address"
     private var counter: Int = 0
+    private var totalDistanceTraveled: Double = 0.0
+    private var locationArray: MutableList<GeoPoint> = mutableListOf()
 
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
@@ -48,17 +51,27 @@ class TrackingSessionFragment : Fragment(), LocationListener {
     private lateinit var travelDistance: TextView
     private lateinit var travelSpeed: TextView
 
+    private var btnStart: MaterialButton? = null
+    private var btnStop: MaterialButton? = null
+
     override fun onLocationChanged(p0: Location) {
         currentLatitude = p0.latitude
         currentLongitude = p0.longitude
         addressValue = getAddress(p0.latitude, p0.longitude)
 
         val currentLoc = GeoPoint(currentLatitude, currentLongitude)
-        whenLocationChanged(p0)
         if (counter == 0) {
-            startingLocation = GeoPoint(currentLatitude, currentLongitude)
+            previousLoc = GeoPoint(currentLatitude, currentLongitude)
+            locationArray.add(previousLoc)
+        } else {
+            previousLoc = locationArray.last()
+            locationArray.add(currentLoc)
         }
-        Log.d("onLocationChanged()", "distance in metres: ${getDistance(startingLocation, currentLoc)}")
+        whenLocationChanged(p0)
+        Log.d(
+            "onLocationChanged()",
+            "distance in metres: ${getDistance(previousLoc, currentLoc, totalDistanceTraveled)}"
+        )
         counter++
     }
 
@@ -77,13 +90,16 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         )
         super.onViewCreated(view, savedInstanceState)
 
-        val btnStart = view.findViewById<MaterialButton>(R.id.btnStart)
-        val btnStop = view.findViewById<MaterialButton>(R.id.btnStop)
+        btnStart = view.findViewById(R.id.btnStart)
+        btnStop = view.findViewById(R.id.btnStop)
         textAddress = view.findViewById(R.id.textAddress)
         textGeo = view.findViewById(R.id.geoInfo)
         travelDistance = view.findViewById(R.id.travelDistance)
         travelSpeed = view.findViewById(R.id.travelSpeed)
         mapView = view.findViewById(R.id.mapView)
+
+        btnStop?.visibility = View.GONE
+
         val lm = activity?.getSystemService(Context.LOCATION_SERVICE) as
                 LocationManager
 
@@ -109,53 +125,13 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 
-        if ((Build.VERSION.SDK_INT >= 23 &&
-                    activityContext?.let {
-                        ContextCompat.checkSelfPermission(
-                            it,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                    } !=
-                    PackageManager.PERMISSION_GRANTED)
-        ) {
-            activity?.let {
-                ActivityCompat.requestPermissions(
-                    it,
-                    arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                    0
-                )
-            }
-        }
+        Permissions.askForPermissions("ACCESS_FINE_LOCATION", requireActivity())
 
-        btnStop.isEnabled = false
-        btnStart.setOnClickListener {
-            btnStart.isEnabled = false
-            btnStop.isEnabled = true
-            Log.d("btnStart", "clicked btnStart")
-            //somewhere e.g. in "start tracking" button click listener
-            try {
-                lm.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    0,
-                    0f,
-                    this
-                )
-                lm.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    0,
-                    0f,
-                    this
-                )
-            } catch (e: Error) {
-                Log.d("btnStart", "requestLocationUpdates error: $e")
-            }
+        btnStart?.setOnClickListener {
+            startTrackingSession(lm)
         }
-
-        btnStop.setOnClickListener {
-            btnStart.isEnabled = true
-            btnStop.isEnabled = false
-            Log.d("btnStop", "clicked btnStop")
-            lm.removeUpdates(this)
+        btnStop?.setOnClickListener {
+            endTrackingSession(lm)
         }
     }
 
@@ -168,8 +144,14 @@ class TrackingSessionFragment : Fragment(), LocationListener {
             marker.title = getAddress(loc.latitude, loc.longitude)
             marker.closeInfoWindow()
             mapView.overlays.add(marker)
+            mapView.invalidate()
 
-            activity?.runOnUiThread {
+            // Creates line between GeoPoints on map
+            val line = Polyline()
+            line.setPoints(locationArray)
+            mapView.overlays.add(line)
+
+            activity?.runOnUiThread() {
                 // Centering map to middle of location
                 mapView.controller.setCenter(gp)
                 mapView.controller.animateTo(gp)
@@ -186,14 +168,64 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
     }
 
+    private fun startTrackingSession(lm: LocationManager) {
+        Log.d("click", "clicked btnStart")
+        val perms = ActivityCompat.checkSelfPermission(
+            activityContext!!,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        when (perms) {
+            0 -> {
+                try {
+                    Log.d("perms", "access 0")
+                    lm.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        10 * 1000,
+                        0f,
+                        this
+                    )
+                    btnStart?.visibility = View.GONE
+                    btnStop?.visibility = View.VISIBLE
+                } catch (e: Error) {
+                    Log.d("btnStart", "requestLocationUpdates error: $e")
+                }
+            }
+            -1 -> Log.d("perms", "access -1")
+            else -> Log.d("perms", "neither 0 or -1")
+        }
+    }
+
+    private fun endTrackingSession(lm: LocationManager) {
+        Log.d("btnStop", "clicked btnStop")
+
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        builder.setCancelable(true)
+        builder.setTitle("End session")
+        builder.setMessage("Are you sure you want to end this session?")
+        builder.setPositiveButton(
+            "End session"
+        ) { _, _ ->
+            Log.d("confirm", "confirmed")
+            btnStop?.visibility = View.GONE
+            btnStart?.visibility = View.VISIBLE
+            lm.removeUpdates(this)
+        }
+        builder.setNegativeButton(
+            "keep tracking"
+        ) { _, _ -> Log.d("cancel", "cancelled") }
+
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
     private fun getAddress(lat: Double, lng: Double): String {
         val geocoder = Geocoder(activityContext)
         val list = geocoder.getFromLocation(lat, lng, 1)
         return list[0].getAddressLine(0)
     }
 
-    private fun getDistance(startingLoc: GeoPoint, currentLoc: GeoPoint) {
-        val distance = startingLoc.distanceToAsDouble(currentLoc)
-        travelDistance.text = ("${getString(R.string.travel_distance)} ${distance.roundToLong()} m")
+    private fun getDistance(previousLoc: GeoPoint, currentLoc: GeoPoint, totalDistanceTraveled: Double) {
+        this.totalDistanceTraveled = totalDistanceTraveled + previousLoc.distanceToAsDouble(currentLoc)
+        travelDistance.text = ("${getString(R.string.travel_distance)} ${this.totalDistanceTraveled.roundToLong()} m")
     }
 }
