@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
@@ -40,6 +41,8 @@ class TrackingSessionFragment : Fragment(), LocationListener {
     private var currentLongitude: Double = 0.00
     private var previousLoc: GeoPoint = GeoPoint(0.0, 0.0)
     private var addressValue: String = "No address"
+    private var stepsValue: Int = 0
+    private var caloriesValue: Double = 0.0
     private var counter: Int = 0
     private var totalDistanceTraveled: Double = 0.0
     private var locationArray: MutableList<GeoPoint> = mutableListOf()
@@ -47,9 +50,14 @@ class TrackingSessionFragment : Fragment(), LocationListener {
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
     private lateinit var textAddress: TextView
-    private lateinit var textGeo: TextView
     private lateinit var travelDistance: TextView
     private lateinit var travelSpeed: TextView
+
+    private lateinit var progressAddress: ProgressBar
+    private lateinit var progressDistance: ProgressBar
+    private lateinit var progressSpeed: ProgressBar
+    private lateinit var progressSteps: ProgressBar
+    private lateinit var progressCalories: ProgressBar
 
     private var btnStart: MaterialButton? = null
     private var btnStop: MaterialButton? = null
@@ -90,15 +98,7 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         )
         super.onViewCreated(view, savedInstanceState)
 
-        btnStart = view.findViewById(R.id.btnStart)
-        btnStop = view.findViewById(R.id.btnStop)
-        textAddress = view.findViewById(R.id.textAddress)
-        textGeo = view.findViewById(R.id.geoInfo)
-        travelDistance = view.findViewById(R.id.travelDistance)
-        travelSpeed = view.findViewById(R.id.travelSpeed)
-        mapView = view.findViewById(R.id.mapView)
-
-        btnStop?.visibility = View.GONE
+        initiateValues(view)
 
         val lm = activity?.getSystemService(Context.LOCATION_SERVICE) as
                 LocationManager
@@ -135,8 +135,36 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
     }
 
+    private fun initiateValues(view: View) {
+        btnStart = view.findViewById(R.id.btnStart)
+        btnStop = view.findViewById(R.id.btnStop)
+        textAddress = view.findViewById(R.id.textAddress)
+        travelDistance = view.findViewById(R.id.travelDistance)
+        travelSpeed = view.findViewById(R.id.travelSpeed)
+        mapView = view.findViewById(R.id.mapView)
+
+        progressAddress = view.findViewById(R.id.progressAddress)
+        progressDistance = view.findViewById(R.id.progressDistance)
+        progressSpeed = view.findViewById(R.id.progressSpeed)
+        progressSteps = view.findViewById(R.id.progressSteps)
+        progressCalories = view.findViewById(R.id.progressCalories)
+
+        progressAddress.visibility = View.GONE
+        progressDistance.visibility = View.GONE
+        progressSpeed.visibility = View.GONE
+        progressSteps.visibility = View.GONE
+        progressCalories.visibility = View.GONE
+
+        btnStop?.visibility = View.GONE
+    }
+
     private fun whenLocationChanged(loc: Location) {
         try {
+            progressAddress.visibility = View.GONE
+            progressDistance.visibility = View.GONE
+            progressSpeed.visibility = View.GONE
+            progressSteps.visibility = View.GONE
+            progressCalories.visibility = View.GONE
             // creating GeoPoint from latitude and longitude
             val gp = GeoPoint(loc.latitude, loc.longitude)
             // Setting up mark
@@ -162,7 +190,6 @@ class TrackingSessionFragment : Fragment(), LocationListener {
             Log.d("", "")
 
             textAddress.text = ("Address: $addressValue")
-            textGeo.text = ("Latitude: $currentLatitude \n Longitude: $currentLongitude")
         } catch (e: Error) {
             Log.d("whenLocationChanged()", "whenLocationChanged() error: $e")
         }
@@ -170,6 +197,11 @@ class TrackingSessionFragment : Fragment(), LocationListener {
 
     private fun startTrackingSession(lm: LocationManager) {
         Log.d("click", "clicked btnStart")
+        progressAddress.visibility = View.VISIBLE
+        progressDistance.visibility = View.VISIBLE
+        progressSpeed.visibility = View.VISIBLE
+        progressSteps.visibility = View.VISIBLE
+        progressCalories.visibility = View.VISIBLE
         val perms = ActivityCompat.checkSelfPermission(
             activityContext!!,
             Manifest.permission.ACCESS_FINE_LOCATION

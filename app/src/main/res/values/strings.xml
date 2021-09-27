@@ -9,16 +9,19 @@
 
     <string name="start_tracking">start tracking</string>
     <string name="stop_tracking">stop tracking</string>
-    <string name="long_lat_placeholder">Placeholder text for geolocation</string>
-    <string name="address_placeholder">Placeholder text for address</string>
+    <string name="address_placeholder">Address:</string>
     <string name="travel_distance">Distance:</string>
     <string name="travel_speed">Speed:</string>
+    <string name="travel_steps">Steps:</string>
+    <string name="travel_calories">Calories:</string>
 
     <!--Accessibility stuff-->
     <string name="content_description_session_map">Map with location and path</string>
     <string name="content_description_session_address">Your current address</string>
     <string name="content_description_session_distance">Distance_traveled</string>
     <string name="content_description_session_speed">Your current speed</string>
+    <string name="content_description_session_steps">Your current steps taken</string>
+    <string name="content_description_session_calories">Your current calories burnt</string>
     <string name="content_description_session_start">Start session tracking</string>
     <string name="content_description_session_stop">Stop session tracking</string>
 </resources>
