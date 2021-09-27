@@ -10,9 +10,9 @@
     <string name="start_tracking">start tracking</string>
     <string name="stop_tracking">stop tracking</string>
     <string name="address_placeholder">Address:</string>
-    <string name="travel_distance">Distance:</string>
-    <string name="travel_speed">Speed:</string>
-    <string name="travel_steps">Steps:</string>
+    <string name="travel_distance">Distance: </string>
+    <string name="travel_speed">Speed: </string>
+    <string name="travel_steps">Steps: </string>
     <string name="travel_calories">Calories:</string>
 
     <!--Accessibility stuff-->

@@ -3,6 +3,10 @@ package com.georgv.sporttrackerapp
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
@@ -15,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
@@ -28,9 +33,10 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import kotlin.math.roundToLong
 
-class TrackingSessionFragment : Fragment(), LocationListener {
+class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListener {
 
     private var activityContext: Context? = null
+    private var sensorManager: SensorManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +47,8 @@ class TrackingSessionFragment : Fragment(), LocationListener {
     private var currentLongitude: Double = 0.00
     private var previousLoc: GeoPoint = GeoPoint(0.0, 0.0)
     private var addressValue: String = "No address"
-    private var stepsValue: Int = 0
+    private var running = false
+    private var stepCount = 0
     private var caloriesValue: Double = 0.0
     private var counter: Int = 0
     private var totalDistanceTraveled: Double = 0.0
@@ -52,6 +59,8 @@ class TrackingSessionFragment : Fragment(), LocationListener {
     private lateinit var textAddress: TextView
     private lateinit var travelDistance: TextView
     private lateinit var travelSpeed: TextView
+    private lateinit var travelSteps: TextView
+    private lateinit var travelCalories: TextView
 
     private lateinit var progressAddress: ProgressBar
     private lateinit var progressDistance: ProgressBar
@@ -125,7 +134,11 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 
-        Permissions.askForPermissions("ACCESS_FINE_LOCATION", requireActivity())
+        // Permission handler. Found in customHandlers Permissions
+        Permissions.askForPermissions(
+            "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
+            requireActivity()
+        )
 
         btnStart?.setOnClickListener {
             startTrackingSession(lm)
@@ -135,12 +148,16 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
     }
 
+    // Initiates some UI elements and handles visibility for progress bars.
+    // Is made into a separate function to clean up onViewCreated
     private fun initiateValues(view: View) {
         btnStart = view.findViewById(R.id.btnStart)
         btnStop = view.findViewById(R.id.btnStop)
         textAddress = view.findViewById(R.id.textAddress)
         travelDistance = view.findViewById(R.id.travelDistance)
         travelSpeed = view.findViewById(R.id.travelSpeed)
+        travelSteps = view.findViewById(R.id.travelSteps)
+        travelCalories = view.findViewById(R.id.travelCalories)
         mapView = view.findViewById(R.id.mapView)
 
         progressAddress = view.findViewById(R.id.progressAddress)
@@ -174,11 +191,12 @@ class TrackingSessionFragment : Fragment(), LocationListener {
             mapView.overlays.add(marker)
             mapView.invalidate()
 
-            // Creates line between GeoPoints on map
+            // Creates line between GeoPoints on map (user can see black line between visited locations)
             val line = Polyline()
             line.setPoints(locationArray)
             mapView.overlays.add(line)
 
+            // UI elements must be run on UI thread or else app crashes
             activity?.runOnUiThread() {
                 // Centering map to middle of location
                 mapView.controller.setCenter(gp)
@@ -195,6 +213,7 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
     }
 
+    // Starts sports tracking session when user presses start tracking-button
     private fun startTrackingSession(lm: LocationManager) {
         Log.d("click", "clicked btnStart")
         progressAddress.visibility = View.VISIBLE
@@ -210,12 +229,41 @@ class TrackingSessionFragment : Fragment(), LocationListener {
             0 -> {
                 try {
                     Log.d("perms", "access 0")
+
+                    // Starts location tracking
                     lm.requestLocationUpdates(
                         LocationManager.GPS_PROVIDER,
                         10 * 1000,
                         0f,
                         this
                     )
+
+                    // Setting up step counter
+                    sensorManager =
+                        activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                    running = true
+
+                    // Step detector works better than step counter
+                    val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+
+                    // Checks if user has step detector sensor on device
+                    if (stepSensor == null) {
+                        Toast.makeText(
+                            activityContext,
+                            "No step sensor detected on this device",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+
+                    // If the step detector exists:
+                    else {
+                        sensorManager?.registerListener(
+                            this,
+                            stepSensor,
+                            SensorManager.SENSOR_DELAY_UI
+                        )
+                    }
                     btnStart?.visibility = View.GONE
                     btnStop?.visibility = View.VISIBLE
                 } catch (e: Error) {
@@ -227,37 +275,69 @@ class TrackingSessionFragment : Fragment(), LocationListener {
         }
     }
 
+    // Ends sports tracking session when user presses stop tracking-button
     private fun endTrackingSession(lm: LocationManager) {
         Log.d("btnStop", "clicked btnStop")
 
+        // Creates a dialog popup interface to confirm if user wants to end sports tracking session
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setCancelable(true)
         builder.setTitle("End session")
         builder.setMessage("Are you sure you want to end this session?")
+
+        // When user confirms popup interface
         builder.setPositiveButton(
             "End session"
         ) { _, _ ->
             Log.d("confirm", "confirmed")
             btnStop?.visibility = View.GONE
             btnStart?.visibility = View.VISIBLE
+
+            // Stops location tracking
             lm.removeUpdates(this)
+
+            // Stops step detector
+            running = false
         }
+
+        // When user cancels popup interface
         builder.setNegativeButton(
             "keep tracking"
-        ) { _, _ -> Log.d("cancel", "cancelled") }
+        ) { _, _ -> Log.d("cancel", "canceled dialog interface") }
 
+        // Puts the popup to the screen
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
 
+    // Gets current address
     private fun getAddress(lat: Double, lng: Double): String {
         val geocoder = Geocoder(activityContext)
         val list = geocoder.getFromLocation(lat, lng, 1)
         return list[0].getAddressLine(0)
     }
 
-    private fun getDistance(previousLoc: GeoPoint, currentLoc: GeoPoint, totalDistanceTraveled: Double) {
-        this.totalDistanceTraveled = totalDistanceTraveled + previousLoc.distanceToAsDouble(currentLoc)
-        travelDistance.text = ("${getString(R.string.travel_distance)} ${this.totalDistanceTraveled.roundToLong()} m")
+    // Gets current distance traveled
+    private fun getDistance(
+        previousLoc: GeoPoint,
+        currentLoc: GeoPoint,
+        totalDistanceTraveled: Double
+    ) {
+        this.totalDistanceTraveled =
+            totalDistanceTraveled + previousLoc.distanceToAsDouble(currentLoc)
+        travelDistance.text =
+            ("${getString(R.string.travel_distance)} ${this.totalDistanceTraveled.roundToLong()} m")
+    }
+
+    // Member for SensorEventListener. Is used for detecting steps
+    override fun onSensorChanged(p0: SensorEvent?) {
+        if (running) {
+            stepCount++
+            travelSteps.text = ("${getString(R.string.travel_steps)} $stepCount")
+        }
+    }
+
+    // Unused, put here to stop member implementation error for SensorEventListener
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 }

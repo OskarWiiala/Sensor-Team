@@ -9,9 +9,9 @@ import androidx.fragment.app.FragmentActivity
 
 object Permissions {
     fun askForPermissions(perms: String?, activity: FragmentActivity) {
-        if(perms == "ACCESS_FINE_LOCATION") {
+        if(perms == "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION") {
             activity.let {
-                Log.d("perms 0", "asking for perms")
+                Log.d("perms 0", "asking for perms: ACCESS_FINE_LOCATION")
                 if (ContextCompat.checkSelfPermission(
                         it,
                         Manifest.permission.ACCESS_FINE_LOCATION
@@ -20,11 +20,13 @@ object Permissions {
                 ) {
                     ActivityCompat.requestPermissions(
                         it,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACTIVITY_RECOGNITION),
                         0
                     )
                 }
             }
+        } else {
+            Log.d("Permissions.kt","Could not find permission handler for: $perms")
         }
     }
 }
