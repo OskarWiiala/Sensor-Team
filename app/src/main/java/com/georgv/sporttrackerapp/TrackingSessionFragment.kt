@@ -22,8 +22,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.georgv.sporttrackerapp.customHandlers.Permissions
+import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -117,9 +119,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         // Adds ability to zoom with 2 fingers (multitouch)
         mapView.setMultiTouchControls(true)
 
-        // Set zoom level with the map controller (e.g. in onCreate.
-        // Avoid to change it all the time!)
-        mapView.controller.setZoom(9.0)
+
 
         // Move the center of the map on a default view point with the
         // map controller (e.g. in location change listener)
@@ -133,6 +133,9 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
             )
         }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        val mapController = mapView.controller
+        mapController.setZoom(18.0)
+        mapController.animateTo(marker.position)
 
         // Permission handler. Found in customHandlers Permissions
         Permissions.askForPermissions(
@@ -298,6 +301,11 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
             // Stops step detector
             running = false
+
+            insertToDatabase()
+            Log.d("INSERT", "DAtA INSERT")
+
+
         }
 
         // When user cancels popup interface
@@ -339,5 +347,11 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
     // Unused, put here to stop member implementation error for SensorEventListener
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    private fun insertToDatabase(){
+        val svm: SessionViewModel by viewModels()
+        svm.insertTest()
+
     }
 }
