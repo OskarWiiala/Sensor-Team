@@ -4,9 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable-v24/ic_baseline_location_off_24.xml" value="0.23333333333333334" />
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/ic_arrow_drop_down_24.xml" value="0.2453125" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/ic_history_24.xml" value="0.24307692307692308" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/ic_tracker_24.xml" value="0.14635416666666667" />
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/rounded_corner.xml" value="0.26615384615384613" />
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/drawable/spinner_bg.xml" value="0.2453125" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/custom_spinner_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_history.xml" value="0.14895833333333333" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_statistics.xml" value="0.22708333333333333" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/fragment_tracker.xml" value="0.22708333333333333" />
