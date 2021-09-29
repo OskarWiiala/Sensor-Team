@@ -17,14 +17,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
+import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.customHandlers.Permissions
+import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.*
 import org.osmdroid.config.Configuration
@@ -33,9 +36,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
-import java.io.IOError
 import java.io.IOException
-import kotlin.math.roundToLong
 
 class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListener {
 
@@ -59,11 +60,13 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
     private var addressValue: String = "No address"
     private var running = false
     private var stepCount = 0
+    private var currentSpeed = 0.0f
     private var caloriesValue: Double = 0.0
     private var counter: Int = 0
+    private var userWeightKg: Double = 0.0
     private var totalDistanceTraveled: Double = 0.0
     private var locationArray: MutableList<GeoPoint> = mutableListOf()
-    private var speedArray: MutableList<Double> = mutableListOf()
+    private var speedArray: MutableList<Float> = mutableListOf()
 
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
@@ -82,13 +85,18 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
     private var btnStart: MaterialButton? = null
     private var btnStop: MaterialButton? = null
 
+    // Is called every time location changes. Frequency is dictated in startTrackingSession()
     override fun onLocationChanged(p0: Location) {
+        // gets the latitude and longitude of current location
         currentLatitude = p0.latitude
         currentLongitude = p0.longitude
         addressValue = getAddress(p0.latitude, p0.longitude)
 
+        // osmdroid map API uses GeoPoints to calculate location
         val currentLoc = GeoPoint(currentLatitude, currentLongitude)
+
         if (counter == 0) {
+            // is used to make the 2 first GeoPoints
             previousLoc = GeoPoint(currentLatitude, currentLongitude)
             locationArray.add(previousLoc)
         } else {
@@ -96,10 +104,8 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
             locationArray.add(currentLoc)
         }
         whenLocationChanged(p0)
-        Log.d(
-            "onLocationChanged()",
-            "distance in metres: ${getDistance(previousLoc, currentLoc, totalDistanceTraveled)}"
-        )
+        // Sets the traveled distance. I put this here instead of whenLocationChanged for easier use.
+        getDistance(previousLoc, currentLoc, totalDistanceTraveled)
         counter++
     }
 
@@ -128,10 +134,6 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         // Adds ability to zoom with 2 fingers (multitouch)
         mapView.setMultiTouchControls(true)
 
-        // Set zoom level with the map controller (e.g. in onCreate.
-        // Avoid to change it all the time!)
-        mapView.controller.setZoom(9.0)
-
         // Move the center of the map on a default view point with the
         // map controller (e.g. in location change listener)
         mapView.controller.setCenter(GeoPoint(60.17, 24.95))
@@ -144,6 +146,9 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
             )
         }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        val mapController = mapView.controller
+        mapController.setZoom(18.0)
+        mapController.animateTo(marker.position)
 
         // Permission handler. Found in customHandlers Permissions
         Permissions.askForPermissions(
@@ -214,31 +219,37 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
                 mapView.controller.animateTo(gp)
             }
 
-            travelSpeed.text =
-                ("${getString(R.string.travel_speed)} ${msToKmhConverter(loc.speed)} km/h")
+            textAddress.text = ("${getString(R.string.travel_address)} $addressValue")
 
-            textAddress.text = ("Address: $addressValue")
+            currentSpeed = msToKmhConverter(loc.speed)
+            travelSpeed.text = ("${getString(R.string.travel_speed)} $currentSpeed km/h")
+
+            // Only adding speed value if not 0 to reduce average speed being too low
+            if(currentSpeed != 0.0f) {
+            speedArray.add(currentSpeed)
+            }
+
+            caloriesValue = countCalories(
+                totalDistanceTraveled,
+                userWeightKg
+            )
+            travelCalories.text = ("${getString(R.string.travel_calories)} $caloriesValue")
         } catch (e: Error) {
             Log.d("whenLocationChanged()", "whenLocationChanged() error: $e")
         }
     }
 
     private fun msToKmhConverter(speed: Float): Float {
-        return speed * 3.6f
+        return String.format("%.2f", speed * 3.6f).toFloat()
     }
 
-    private fun meterToKilometerConverter(distance: Double): String {
-        return String.format("%.2f", distance / 1000)
+    private fun meterToKilometerConverter(distance: Double): Double {
+        return String.format("%.2f", distance / 1000).toDouble()
     }
 
     // Starts sports tracking session when user presses start tracking-button
     private fun startTrackingSession(lm: LocationManager) {
         Log.d("click", "clicked btnStart")
-        progressAddress.visibility = View.VISIBLE
-        progressDistance.visibility = View.VISIBLE
-        progressSpeed.visibility = View.VISIBLE
-        progressSteps.visibility = View.VISIBLE
-        progressCalories.visibility = View.VISIBLE
         val perms = ActivityCompat.checkSelfPermission(
             activityContext!!,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -246,50 +257,89 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         when (perms) {
             0 -> {
                 try {
-                    Log.d("perms", "access 0")
+                    Log.d("Location perms", "access 0")
+                    // This dialog popup asks the user for their weight in kilograms. It is used in calorie counting
+                    val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
 
-                    // Starts location tracking
-                    lm.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER,
-                        2 * 1000,
-                        0f,
-                        this
-                    )
+                    // sets a custom dialog interface for the popup
+                    val li = LayoutInflater.from(activityContext)
+                    val promptsView = li.inflate(R.layout.weight_prompt, null)
+                    builder.setView(promptsView)
 
-                    // Setting up step counter
-                    sensorManager =
-                        activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-                    running = true
+                    // InputField to set user's weight
+                    val userInput = promptsView.findViewById<EditText>(R.id.editTextDialogUserInput)
 
-                    // Step detector works better than step counter
-                    val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+                    builder.setCancelable(true)
 
-                    // Checks if user has step detector sensor on device
-                    if (stepSensor == null) {
-                        Toast.makeText(
-                            activityContext,
-                            "No step sensor detected on this device",
-                            Toast.LENGTH_SHORT
+                    // When user confirms popup interface
+                    builder.setPositiveButton(
+                        "OK"
+                    ) { _, _ ->
+                        Log.d("confirm", "confirmed")
+                        progressAddress.visibility = View.VISIBLE
+                        progressDistance.visibility = View.VISIBLE
+                        progressSpeed.visibility = View.VISIBLE
+                        progressSteps.visibility = View.VISIBLE
+                        progressCalories.visibility = View.VISIBLE
+                        // The numerical value of the user's weight
+                        userWeightKg = userInput.text.toString().toDouble()
+
+                        // Starts location tracking
+                        lm.requestLocationUpdates(
+                            LocationManager.GPS_PROVIDER,
+                            2 * 1000,
+                            0f,
+                            this
                         )
-                            .show()
+
+                        // Setting up step counter
+                        sensorManager =
+                            activity?.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                        running = true
+
+                        // Step detector works better than step counter
+                        val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+
+                        // Checks if user has step detector sensor on device
+                        if (stepSensor == null) {
+                            Toast.makeText(
+                                activityContext,
+                                "No step sensor detected on this device",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+
+                        // If the step detector exists:
+                        else {
+                            sensorManager?.registerListener(
+                                this,
+                                stepSensor,
+                                SensorManager.SENSOR_DELAY_UI
+                            )
+                        }
+                        btnStart?.visibility = View.GONE
+                        btnStop?.visibility = View.VISIBLE
                     }
 
-                    // If the step detector exists:
-                    else {
-                        sensorManager?.registerListener(
-                            this,
-                            stepSensor,
-                            SensorManager.SENSOR_DELAY_UI
-                        )
+                    // When user cancels popup interface
+                    builder.setNegativeButton(
+                        "Cancel"
+                    ) { _, _ ->
+                        Log.d("cancel", "canceled dialog interface")
                     }
-                    btnStart?.visibility = View.GONE
-                    btnStop?.visibility = View.VISIBLE
+
+                    // Puts the popup to the screen
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()
+
                 } catch (e: Error) {
                     Log.d("btnStart", "requestLocationUpdates error: $e")
                 }
             }
-            -1 -> Log.d("perms", "access -1")
-            else -> Log.d("perms", "neither 0 or -1")
+            // if permission for location tracking is denied by user
+            -1 -> Log.d("Location perms", "access -1")
+            else -> Log.d("Location perms", "neither 0 or -1")
         }
     }
 
@@ -316,6 +366,13 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
             // Stops step detector
             running = false
+
+            // Calculates average speed of user during session
+            val averageSpeed = speedArray.average().toFloat()
+
+            // Inserts recorded data to database: Distance, average speed, steps, calories etc...
+            insertToDatabase()
+            Log.d("INSERT", "DAtA INSERT")
         }
 
         // When user cancels popup interface
@@ -328,22 +385,22 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         dialog.show()
     }
 
-    // Gets current address
+    // Gets current address CURRENTLY BROKEN: causes frequent crashes, currently disabled, gives "" as value
     private fun getAddress(lat: Double, lng: Double): String {
         Log.d("getAddress", "one")
         var test2 = ""
 
-            val test3 = coroutineScope.launch {
-                Log.d("getAddress", "two")
-                val makeAddress = secondScope.async { makeAddress(lat, lng) }
-                try {
-                    Log.d("getAddress", "three")
-                    test2 = makeAddress.await()
-                } catch (e: IOException) {
-                    Log.d("error", "getAddress.await() error")
+        val test3 = coroutineScope.launch {
+            Log.d("getAddress", "two")
+            val makeAddress = secondScope.async { makeAddress(lat, lng) }
+            try {
+                Log.d("getAddress", "three")
+                test2 = makeAddress.await()
+            } catch (e: IOException) {
+                Log.d("error", "getAddress.await() error")
 
-                }
             }
+        }
 
         Log.d("getAddress", "four")
 
@@ -378,5 +435,23 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
     // Unused, put here to stop member implementation error for SensorEventListener
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    // Inserts recorded data to database
+    private fun insertToDatabase() {
+        val svm: SessionViewModel by viewModels()
+        svm.insertTest()
+
+    }
+
+    // Counts calories from the sports session. Updates every x seconds dictated by location tracking update frequency
+    private fun countCalories(
+        totalDistance: Double,
+        userWeight: Double
+    ): Double {
+        // Using CalorieCounter.kt object to reduce clutter in this fragment
+        return CalorieCounter.countCalories(
+            totalDistance, userWeight
+        )
     }
 }

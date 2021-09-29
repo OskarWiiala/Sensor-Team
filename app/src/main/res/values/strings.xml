@@ -9,11 +9,14 @@
 
     <string name="start_tracking">start tracking</string>
     <string name="stop_tracking">stop tracking</string>
-    <string name="address_placeholder">Address:</string>
+    <string name="travel_address">Address:</string>
     <string name="travel_distance">Distance: </string>
     <string name="travel_speed">Speed: </string>
     <string name="travel_steps">Steps: </string>
     <string name="travel_calories">Calories:</string>
+
+    <string name="weight_title">Enter your weight</string>
+    <string name="weight_kg">kg</string>
 
     <!--Accessibility stuff-->
     <string name="content_description_session_map">Map with location and path</string>
@@ -24,4 +27,7 @@
     <string name="content_description_session_calories">Your current calories burnt</string>
     <string name="content_description_session_start">Start session tracking</string>
     <string name="content_description_session_stop">Stop session tracking</string>
+    <string name="content_description_weight_title">Enter your weight in kilograms</string>
+    <string name="content_description_weight_input">Enter weight here</string>
+    <string name="content_description_weight_kg">Kilograms</string>
 </resources>
