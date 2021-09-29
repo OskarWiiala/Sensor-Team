@@ -22,18 +22,28 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.georgv.sporttrackerapp.customHandlers.Permissions
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.*
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import java.io.IOError
+import java.io.IOException
 import kotlin.math.roundToLong
 
 class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListener {
+
+    companion object {
+        private val parentJob = Job()
+        private val coroutineScope = CoroutineScope(Dispatchers.Main + parentJob)
+        private val secondScope = CoroutineScope(Dispatchers.IO + parentJob)
+    }
 
     private var activityContext: Context? = null
     private var sensorManager: SensorManager? = null
@@ -53,6 +63,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
     private var counter: Int = 0
     private var totalDistanceTraveled: Double = 0.0
     private var locationArray: MutableList<GeoPoint> = mutableListOf()
+    private var speedArray: MutableList<Double> = mutableListOf()
 
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
@@ -203,14 +214,21 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
                 mapView.controller.animateTo(gp)
             }
 
-            Log.d("whenLocationChanged", "speed: ${loc.speed} + hasSpeed: ${loc.hasSpeed()}")
-            travelSpeed.text = ("${getString(R.string.travel_speed)} ${loc.speed} m/s")
-            Log.d("", "")
+            travelSpeed.text =
+                ("${getString(R.string.travel_speed)} ${msToKmhConverter(loc.speed)} km/h")
 
             textAddress.text = ("Address: $addressValue")
         } catch (e: Error) {
             Log.d("whenLocationChanged()", "whenLocationChanged() error: $e")
         }
+    }
+
+    private fun msToKmhConverter(speed: Float): Float {
+        return speed * 3.6f
+    }
+
+    private fun meterToKilometerConverter(distance: Double): String {
+        return String.format("%.2f", distance / 1000)
     }
 
     // Starts sports tracking session when user presses start tracking-button
@@ -233,7 +251,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
                     // Starts location tracking
                     lm.requestLocationUpdates(
                         LocationManager.GPS_PROVIDER,
-                        10 * 1000,
+                        2 * 1000,
                         0f,
                         this
                     )
@@ -312,6 +330,27 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
     // Gets current address
     private fun getAddress(lat: Double, lng: Double): String {
+        Log.d("getAddress", "one")
+        var test2 = ""
+
+            val test3 = coroutineScope.launch {
+                Log.d("getAddress", "two")
+                val makeAddress = secondScope.async { makeAddress(lat, lng) }
+                try {
+                    Log.d("getAddress", "three")
+                    test2 = makeAddress.await()
+                } catch (e: IOException) {
+                    Log.d("error", "getAddress.await() error")
+
+                }
+            }
+
+        Log.d("getAddress", "four")
+
+        return test2
+    }
+
+    private fun makeAddress(lat: Double, lng: Double): String {
         val geocoder = Geocoder(activityContext)
         val list = geocoder.getFromLocation(lat, lng, 1)
         return list[0].getAddressLine(0)
@@ -326,7 +365,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         this.totalDistanceTraveled =
             totalDistanceTraveled + previousLoc.distanceToAsDouble(currentLoc)
         travelDistance.text =
-            ("${getString(R.string.travel_distance)} ${this.totalDistanceTraveled.roundToLong()} m")
+            ("${getString(R.string.travel_distance)} ${meterToKilometerConverter(this.totalDistanceTraveled)} km")
     }
 
     // Member for SensorEventListener. Is used for detecting steps
