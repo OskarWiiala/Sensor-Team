@@ -90,6 +90,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         // gets the latitude and longitude of current location
         currentLatitude = p0.latitude
         currentLongitude = p0.longitude
+        Log.d("accuracy","${p0.accuracy}")
         addressValue = getAddress(p0.latitude, p0.longitude)
 
         // osmdroid map API uses GeoPoints to calculate location
@@ -398,12 +399,9 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
                 test2 = makeAddress.await()
             } catch (e: IOException) {
                 Log.d("error", "getAddress.await() error")
-
             }
         }
-
         Log.d("getAddress", "four")
-
         return test2
     }
 
