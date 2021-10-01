@@ -27,6 +27,7 @@ import androidx.fragment.app.viewModels
 import androidx.preference.PreferenceManager
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.customHandlers.Permissions
+import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.*
@@ -418,11 +419,12 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
         previousLoc: GeoPoint,
         currentLoc: GeoPoint,
         totalDistanceTraveled: Double
-    ) {
+    ):Double {
         this.totalDistanceTraveled =
             totalDistanceTraveled + previousLoc.distanceToAsDouble(currentLoc)
         travelDistance.text =
             ("${getString(R.string.travel_distance)} ${meterToKilometerConverter(this.totalDistanceTraveled)} km")
+        return totalDistanceTraveled
     }
 
     // Member for SensorEventListener. Is used for detecting steps
@@ -435,6 +437,10 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
 
     // Unused, put here to stop member implementation error for SensorEventListener
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    private fun createSession(): Session? {
+        return null
     }
 
     // Inserts recorded data to database
