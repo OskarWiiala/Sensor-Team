@@ -1,10 +1,12 @@
 package com.georgv.sporttrackerapp
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 
@@ -13,14 +15,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
 
-class HistoryAdapter() : ListAdapter<Session, HistoryAdapter.ViewHolder>(DiffCallback()) {
+class HistoryAdapter(private val listener:OnItemClickListener) : ListAdapter<Session, HistoryAdapter.ViewHolder>(DiffCallback()) {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),View.OnClickListener {
         val textView: TextView
 
         init {
             textView = view.findViewById(R.id.historyItem)
+            this.itemView.setOnClickListener(this)
         }
+
+        override fun onClick(p0: View?) {
+            val position:Int = adapterPosition
+            val item = getItem(position)
+            if(position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position, item)
+            }
+
+        }
+
     }
 
     // Create new views (invoked by the layout manager)
@@ -38,8 +51,12 @@ class HistoryAdapter() : ListAdapter<Session, HistoryAdapter.ViewHolder>(DiffCal
         val item = getItem(position)
         viewHolder.textView.text = TypeConverterUtil().fromTimestamp(item.startTime).toString()
 
+
     }
 
+    interface OnItemClickListener{
+        fun onItemClick(position:Int, session: Session)
+    }
 
 }
 
