@@ -4,7 +4,6 @@ import SessionRepository
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import com.georgv.sporttrackerapp.HistoryAdapter
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.database.SessionDB
@@ -24,12 +23,13 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     fun insertTest() {
         val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
         val currentDate = Date()
+        val list: List<Pair<Long,Long>> = listOf(Pair(12,31), Pair(14,15),Pair(14,51))
 
         val session = Session(
             0,
             TypeConverterUtil().dateToTimestamp(currentDate),
             TypeConverterUtil().dateToTimestamp(currentDate),
-            14.5, 15f, 25f, 14, 14
+            list, 15f, 25f, 14f, 14, 11
         )
 
         GlobalScope.launch { db.sessionDao().insert(session) }

@@ -2,8 +2,6 @@ package com.georgv.sporttrackerapp.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.osmdroid.util.GeoPoint
-import java.util.*
 
 @Entity
 data class Session(
@@ -11,9 +9,8 @@ data class Session(
     val id: Int,
     val startTime: Long?,
     val endTime: Long?,
-    //val startPos: GeoPoint?,
-    //val endPos: GeoPoint?,
-    val distance: Double,
+    val geopoints: List<Pair<Long,Long>>,
+    val distance: Float,
     val currentSpeed: Float,
     val averageSpeed: Float,
     val steps: Int,
