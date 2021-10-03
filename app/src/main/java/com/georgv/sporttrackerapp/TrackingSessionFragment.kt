@@ -38,6 +38,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import java.io.IOException
+import java.util.*
 
 class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListener {
 
@@ -66,7 +67,7 @@ class TrackingSessionFragment : Fragment(), LocationListener, SensorEventListene
     private var counter: Int = 0
     private var userWeightKg: Double = 0.0
     private var totalDistanceTraveled: Double = 0.0
-    private var locationArray: MutableList<GeoPoint> = mutableListOf()
+    private var locationArray: MutableList<GeoPoint> = mutableListOf(GeoPoint(6.0, 3.0))
     private var speedArray: MutableList<Float> = mutableListOf()
 
     private lateinit var mapView: MapView
