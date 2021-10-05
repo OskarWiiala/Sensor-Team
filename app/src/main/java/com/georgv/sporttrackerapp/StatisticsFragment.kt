@@ -1,5 +1,7 @@
 package com.georgv.sporttrackerapp
 
+import android.app.Application
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,12 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatSpinner
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.georgv.sporttrackerapp.customHandlers.GraphData
 import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.collections.ArrayList
 
 class StatisticsFragment : Fragment() {
     private var graph: GraphView? = null
@@ -29,6 +36,7 @@ class StatisticsFragment : Fragment() {
     private var selectedVariable = "Distance"
     private var selectedTime = "Today"
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -39,9 +47,8 @@ class StatisticsFragment : Fragment() {
         val listByVariable: MutableList<String> = ArrayList()
         val listByTime: MutableList<String> = ArrayList()
 
-        // Since the items are predetermined they are added to the list immediately
         listByVariable.add("Distance")
-        listByVariable.add("Speed")
+        listByVariable.add("Average speed")
         listByVariable.add("Steps")
         listByVariable.add("Calories")
 
@@ -52,7 +59,6 @@ class StatisticsFragment : Fragment() {
 
         Log.d("onViewCreated()", "before creating adapters")
 
-        // adapters for variables and time periods
         val adapterVariable = ArrayAdapter(
             requireActivity().applicationContext,
             R.layout.custom_spinner_item,
@@ -72,7 +78,7 @@ class StatisticsFragment : Fragment() {
         selectByTime(view, spinnerByTime, listByTime)
 
         // Creates graph
-        createGraph(view, selectedVariable)
+        //createGraph(view, selectedVariable)
     }
 
     // Selects a variable from listByVariable based on position
@@ -82,6 +88,7 @@ class StatisticsFragment : Fragment() {
         listByVariable: MutableList<String>
     ) {
         spinnerByVariable.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 selectedVariable = listByVariable[p2]
                 Log.d("spinnerByVariable click", "item selected: $selectedVariable")
@@ -89,7 +96,7 @@ class StatisticsFragment : Fragment() {
                     Log.d("variable selection1", "variable selected: $selectedVariable")
                     createGraph(view, selectedVariable, selectedTime)
                 }
-                if (selectedVariable == "Speed") {
+                if (selectedVariable == "Average speed") {
                     Log.d("variable selection2", "variable selected: $selectedVariable")
                     createGraph(view, selectedVariable, selectedTime)
                 }
@@ -116,9 +123,10 @@ class StatisticsFragment : Fragment() {
         listByTime: MutableList<String>
     ) {
         spinnerByTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 selectedTime = listByTime[p2]
-                Log.d("spinnerByTime click", "item selected: $selectedTime")
+                Log.d("spinnerByTime click", "time selected: $selectedTime")
                 if (selectedTime == "Today") {
                     Log.d("time selection1", "time selected: $selectedTime")
                     createGraph(view, selectedVariable, selectedTime)
@@ -143,6 +151,7 @@ class StatisticsFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createGraph(
         view: View,
         selectedVariable: String = "Distance",
@@ -150,19 +159,52 @@ class StatisticsFragment : Fragment() {
     ) {
         graph = view.findViewById(R.id.graphView)
         graph?.title = ("$selectedVariable ${selectedTime.lowercase()}")
-//      graph?.gridLabelRenderer?.verticalAxisTitle = selectedVariable
-//      graph?.gridLabelRenderer?.horizontalAxisTitle = selectedTime
 
+        if (selectedTime == "Today") {
+            lifecycleScope.launch(Dispatchers.Main) {
+                graph?.removeAllSeries()
+                val gD: GraphData by viewModels()
+                val series = gD.getGraphDataPointsOfToday(selectedVariable)
+                graph?.gridLabelRenderer?.numHorizontalLabels = 12
+                graph?.addSeries(series)
+            }
+        }
 
-        val dataPoints = Array(5) { DataPoint(it.toDouble(), it.toDouble()) }
-        graph?.addSeries(LineGraphSeries(dataPoints))
-        // set date label formatter
-        val graphFormatter = SimpleDateFormat("dd.MM")
-        graph?.gridLabelRenderer?.labelFormatter =
-            DateAsXAxisLabelFormatter(activity, graphFormatter)
-        graph?.gridLabelRenderer?.numHorizontalLabels = 7
+        if (selectedTime == "This week") {
+            lifecycleScope.launch(Dispatchers.Main) {
+                graph?.removeAllSeries()
+                val gD: GraphData by viewModels()
+                val series = gD.getGraphDataPointsOfThisWeek(selectedVariable)
+                graph?.gridLabelRenderer?.numHorizontalLabels = 7
+                graph?.addSeries(series)
+            }
+        }
+
+        if (selectedTime == "This month") {
+            lifecycleScope.launch(Dispatchers.Main) {
+                graph?.removeAllSeries()
+                val gD: GraphData by viewModels()
+                val series = gD.getGraphDataPointsOfThisMonth(selectedVariable)
+                graph?.gridLabelRenderer?.numHorizontalLabels = 16
+                graph?.addSeries(series)
+            }
+        }
+
+        if (selectedTime == "This year") {
+            lifecycleScope.launch(Dispatchers.Main) {
+                graph?.removeAllSeries()
+                val gD: GraphData by viewModels()
+                val series = gD.getGraphDataPointsOfThisYear(selectedVariable)
+                graph?.gridLabelRenderer?.numHorizontalLabels = 12
+                graph?.addSeries(series)
+            }
+        }
+//        val graphFormatter = SimpleDateFormat("dd.MM")
+//        graph?.gridLabelRenderer?.labelFormatter =
+//            DateAsXAxisLabelFormatter(activity, graphFormatter)
+//        graph?.gridLabelRenderer?.numHorizontalLabels = 2
 
         // as we use dates as labels, the human rounding to nice readable numbers is not necessary
-        graph?.gridLabelRenderer?.setHumanRounding(false)
+        graph?.gridLabelRenderer?.setHumanRounding(true)
     }
 }

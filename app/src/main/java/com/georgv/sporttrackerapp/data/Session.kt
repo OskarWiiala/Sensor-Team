@@ -9,7 +9,7 @@ data class Session(
     val id: Int,
     val startTime: Long?,
     val endTime: Long?,
-    val geopoints: List<Pair<Long,Long>>,
+    //val geopoints: List<Pair<Long,Long>>,
     val distance: Float,
     val currentSpeed: Float,
     val averageSpeed: Float,
