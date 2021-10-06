@@ -2,7 +2,6 @@ package com.georgv.sporttrackerapp.graph
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.GraphListData
@@ -60,42 +59,26 @@ class GraphDataToday(val context: Application) {
         val year = localDate.year
         val month = localDate.monthValue
         val day = localDate.dayOfMonth
-        Log.d("todayDayOfWeek","${localDate.dayOfWeek}")
         val currentYearMonthDay = year.toString() + month.toString() + day.toString()
-        Log.d(
-            "Date",
-            "fulldate: ${Date()}, localDate: $localDate, year: $year, month: $month, day: $day"
-        )
-        val cal = Calendar.getInstance()
-        cal.time = date
-        val hours = cal[Calendar.HOUR_OF_DAY]
-        val minutes = cal[Calendar.MINUTE]
-        Log.d("Date2", "time: ${cal.time}, hours: $hours, minute: $minutes")
 
         allSessions = sessionListDao.getGraphVariables()
 
         // Adds all relevant sessions from allSessions to sessionsToday
         for (item in allSessions) {
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
-            Log.d("item", "item: $item")
-            Log.d("itemDate","itemDate: $itemDate, item.timeStamp: ${item.endTime}")
             val itemLocalDate =
                 itemDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             val itemYear = itemLocalDate.year
             val itemMonth = itemLocalDate.monthValue
-            Log.d("todayItemMonth","$itemMonth")
             val itemDay = itemLocalDate.dayOfMonth
             val itemYearMonthDay = itemYear.toString() + itemMonth.toString() + itemDay.toString()
 
-            Log.d("yearMonthDay", itemYearMonthDay)
-            Log.d("currentYearMonthDay", "$currentYearMonthDay")
             if (itemYearMonthDay == currentYearMonthDay) {
                 sessionsToday.add(item)
             }
         }
 
-        Log.d("sessionsToday", "$sessionsToday")
-
+        val cal = Calendar.getInstance()
         var counter = 1
         var itemHour = 0
         var averageSpeed = 0.0

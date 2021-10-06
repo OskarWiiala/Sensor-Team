@@ -2,7 +2,6 @@ package com.georgv.sporttrackerapp.graph
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.GraphListData
@@ -16,6 +15,8 @@ import java.time.ZoneId
 import java.util.*
 
 class GraphDataThisYear(val context: Application) {
+
+    // This holds data to be inserted into DataPoints
     private val monthList: MutableList<Double> = mutableListOf(
         0.0,
         0.0,
@@ -31,7 +32,9 @@ class GraphDataThisYear(val context: Application) {
         0.0,
     )
 
+    // all sessions from database
     private lateinit var allSessions: List<GraphListData>
+
     private var sessionsThisYear: MutableList<GraphListData> = mutableListOf()
     private val sessionListDao: SessionDao = SessionDB.get(context).sessionDao()
 
@@ -41,20 +44,17 @@ class GraphDataThisYear(val context: Application) {
     ) {
         val date = Date()
         val calendarCurrent = Calendar.getInstance()
-        Log.d("calendar", "calendarCurrent: $calendarCurrent")
         calendarCurrent.time = date
         val currentYear = calendarCurrent[Calendar.YEAR]
-        Log.d("currentYear","current year: $currentYear")
 
         allSessions = sessionListDao.getGraphVariables()
 
+        // Adds all relevant sessions from allSessions to sessionsThisYear
         for(item in allSessions) {
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
             val calendarItem = Calendar.getInstance()
-            Log.d("calendar", "calendarItem: $calendarItem")
             calendarItem.time = itemDate!!
             val itemYear = calendarItem[Calendar.YEAR]
-            Log.d("itemYear","item year: $itemYear")
 
             if (itemYear == currentYear) {
                 sessionsThisYear.add(item)
@@ -65,8 +65,9 @@ class GraphDataThisYear(val context: Application) {
         var counter = 1
         var itemMonth = 0
         var averageSpeed = 0.0
+
+        // Assigns values to monthList
         for(item in sessionsThisYear) {
-            Log.d("year","got to item in sessionsThisYear")
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
             val localItemDate = itemDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             cal.time = itemDate
@@ -91,6 +92,7 @@ class GraphDataThisYear(val context: Application) {
             monthList[itemMonth] = averageSpeed
         }
 
+        // LineGraphSeries is used in generating graph data using DataPoints
         return@withContext LineGraphSeries(
             arrayOf(
                 DataPoint(1.0, monthList[0]),

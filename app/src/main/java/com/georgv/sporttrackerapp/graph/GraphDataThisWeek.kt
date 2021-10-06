@@ -2,7 +2,6 @@ package com.georgv.sporttrackerapp.graph
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.GraphListData
@@ -32,17 +31,11 @@ class GraphDataThisWeek(val context: Application) {
     ) {
         val date = Date()
         val calendarCurrent = Calendar.getInstance()
-        Log.d("calendar", "calendarCurrent: $calendarCurrent")
         calendarCurrent.time = date
         val currentYear = calendarCurrent[Calendar.YEAR]
         val currentMonth = calendarCurrent[Calendar.MONTH] +1
         val currentWeek = calendarCurrent[Calendar.WEEK_OF_MONTH]
         val currentYearMonthWeek = currentYear.toString() + currentMonth.toString() + currentWeek.toString()
-        Log.d(
-            "Date2Week",
-            "time: ${calendarCurrent.time}, currentYear: $currentYear, currentMonth: $currentMonth, currentWeekOfMonth: $currentWeek"
-        )
-        Log.d("Date2Week", "currentYearMonthWeek: $currentYearMonthWeek")
 
         allSessions = sessionListDao.getGraphVariables()
 
@@ -50,23 +43,16 @@ class GraphDataThisWeek(val context: Application) {
         for (item in allSessions) {
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
             val calendarItem = Calendar.getInstance()
-            Log.d("calendar", "calendarItem: $calendarItem")
             calendarItem.time = itemDate!!
             val itemYear = calendarItem[Calendar.YEAR]
             val itemMonth = calendarItem[Calendar.MONTH] +1
             val itemWeek = calendarItem[Calendar.WEEK_OF_MONTH]
             val itemYearMonthWeek = itemYear.toString() + itemMonth.toString() + itemWeek.toString()
 
-            Log.d("calendar", "calendarItem2: $calendarItem")
-
-            Log.d("itemYearMonthWeek", itemYearMonthWeek)
-
             if (itemYearMonthWeek == currentYearMonthWeek) {
                 sessionsThisWeek.add(item)
             }
         }
-
-        Log.d("sessionsThisWeek", "$sessionsThisWeek")
 
         val cal = Calendar.getInstance()
         var counter = 1
@@ -79,7 +65,7 @@ class GraphDataThisWeek(val context: Application) {
             val localItemDate = itemDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
             cal.time = itemDate
             itemDay = localItemDate.dayOfWeek.value -1
-            Log.d("dayOfWeek","$itemDay")
+
             if (selectedVariable == "Distance") {
                 dayList[itemDay] += item.distance.toDouble()
             }
@@ -93,7 +79,6 @@ class GraphDataThisWeek(val context: Application) {
             if (selectedVariable == "Calories") {
                 dayList[itemDay] += item.calories.toDouble()
             }
-            Log.d("itemDay","before counter")
             counter++
         }
 
