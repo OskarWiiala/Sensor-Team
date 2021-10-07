@@ -18,6 +18,8 @@
     <string name="weight_title">Enter your weight</string>
     <string name="weight_kg">kg</string>
 
+    <string name="history_delete_text">X</string>
+
     <!--Accessibility stuff-->
     <string name="content_description_session_map">Map with location and path</string>
     <string name="content_description_session_address">Your current address</string>
@@ -30,4 +32,6 @@
     <string name="content_description_weight_title">Enter your weight in kilograms</string>
     <string name="content_description_weight_input">Enter weight here</string>
     <string name="content_description_weight_kg">Kilograms</string>
+
+    <string name="content_description_history_delete">Delete history item</string>
 </resources>

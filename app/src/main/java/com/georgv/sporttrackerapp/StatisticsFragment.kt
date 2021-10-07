@@ -154,7 +154,7 @@ class StatisticsFragment : Fragment() {
         graph?.title = ("$selectedVariable ${selectedTime.lowercase()}")
         graph?.titleTextSize = 60F
         graph?.gridLabelRenderer?.padding = 16
-        graph?.gridLabelRenderer?.setHorizontalLabelsAngle(50)
+        graph?.gridLabelRenderer?.setHorizontalLabelsAngle(45)
 
         if (selectedTime == "Today") {
             lifecycleScope.launch(Dispatchers.Main) {
