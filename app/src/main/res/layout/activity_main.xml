@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="?attr/actionBarSize"
-        android:name="com.georgv.sporttrackerapp.TrackerFragment"
+        android:name="com.georgv.sporttrackerapp.TrackingSessionFragment"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

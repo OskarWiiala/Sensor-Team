@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateToTracker() {
         Log.d("MainActivity.kt","BottomNavigation tracker clicked")
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace<TrackerFragment>(R.id.fragmentContainer)
+        transaction.replace<TrackingSessionFragment>(R.id.fragmentContainer)
         transaction.commit()
     }
 

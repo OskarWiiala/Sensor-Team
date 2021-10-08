@@ -6,15 +6,14 @@ import androidx.room.PrimaryKey
 @Entity
 data class Session(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Long,
     val startTime: Long?,
-    val endTime: Long?,
-    val geopoints: List<Pair<Long,Long>>,
-    val distance: Float,
-    val currentSpeed: Float,
-    val averageSpeed: Float,
-    val steps: Int,
-    val calories: Int
+    var isRunning: Boolean,
+    var endTime: Long?,
+    var distance: Float?,
+    var averageSpeed: Float?,
+    var steps: Long?,
+    var calories: Int?
 ) {
 
 

@@ -15,18 +15,18 @@ import com.georgv.sporttrackerapp.viewmodel.SessionFactory
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 
 class SessionDetailFragment : Fragment(R.layout.fragment_session_detail){
-    val cmp:SessionViewModel by viewModels()
+    val svm:SessionViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val session = cmp.chosenSession
-        Log.d(session?.averageSpeed.toString(),"TEST")
-    val testTextView:TextView = view.findViewById(R.id.textView)
-        testTextView.text = ("callories:${session?.calories}" +
-                "\ndistance: ${session?.distance}" +
-                "\nsteps: ${session?.steps}" +
-                "\nspeed: ${session?.averageSpeed}")
-
-    }
+        //val session = svm.getSessionById(0)
+        //Log.d(session?.averageSpeed.toString(),"TEST")
+//    val testTextView:TextView = view.findViewById(R.id.textView)
+//        testTextView.text = ("callories:${session?.calories}" +
+//                "\ndistance: ${session?.distance}" +
+//                "\nsteps: ${session?.steps}" +
+//                "\nspeed: ${session?.averageSpeed}")
+//
+   }
 
 
 }
