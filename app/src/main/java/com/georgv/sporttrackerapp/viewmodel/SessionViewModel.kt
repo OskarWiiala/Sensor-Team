@@ -69,9 +69,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
             _steps.postValue(0)
             _callories.postValue(0.0)
 
-
-
-
         }
 
 
