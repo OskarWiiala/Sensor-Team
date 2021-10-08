@@ -155,6 +155,8 @@ class StatisticsFragment : Fragment() {
         graph?.titleTextSize = 60F
         graph?.gridLabelRenderer?.padding = 16
         graph?.gridLabelRenderer?.setHorizontalLabelsAngle(45)
+        //graph?.viewport?.isScrollable = true
+        graph?.viewport?.isScalable = true
 
         if (selectedTime == "Today") {
             lifecycleScope.launch(Dispatchers.Main) {

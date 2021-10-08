@@ -34,4 +34,6 @@
     <string name="content_description_weight_kg">Kilograms</string>
 
     <string name="content_description_history_delete">Delete history item</string>
+
+    <string name="content_description_graph">Graph displaying data based on selected time period and variable</string>
 </resources>
