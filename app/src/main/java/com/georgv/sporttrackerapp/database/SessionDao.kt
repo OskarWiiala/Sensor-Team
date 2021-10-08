@@ -2,6 +2,7 @@ package com.georgv.sporttrackerapp.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.georgv.sporttrackerapp.data.GraphListData
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
@@ -22,7 +23,12 @@ interface SessionDao {
 
     @Query("UPDATE session SET isRunning=:isRunning, endTime=:endTime,distance=:distance,averageSpeed=:averageSpeed,steps=:steps,calories=:calories WHERE id = :id")
     fun update(isRunning: Boolean?,endTime:Long,distance:Float, averageSpeed:Float, steps:Long, calories:Int,  id: Long)
+
+    @Query("SELECT endTime, distance, averageSpeed, steps, calories FROM session")
+    fun getGraphVariables(): List<GraphListData>
+
 }
+
 
 @Dao
 interface LocationPointDao{

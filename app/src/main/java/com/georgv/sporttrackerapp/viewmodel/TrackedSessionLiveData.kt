@@ -19,16 +19,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import com.georgv.sporttrackerapp.TrackingSessionFragment
 import com.georgv.sporttrackerapp.data.LocationPoint
-import com.georgv.sporttrackerapp.data.Session
-import com.georgv.sporttrackerapp.data.TrackedSession
-import com.georgv.sporttrackerapp.database.LocationPointDao
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.*
-import org.osmdroid.util.GeoPoint
-import kotlin.math.log
-import kotlin.properties.Delegates
+
 
 
 class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),SessionViewModel.SessionIdGetter {

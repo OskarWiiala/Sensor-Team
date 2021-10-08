@@ -49,6 +49,7 @@ class TrackingSessionFragment : Fragment() {
 
     private var activityContext: Context? = null
 
+
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
     private lateinit var textAddress: TextView
@@ -93,6 +94,9 @@ class TrackingSessionFragment : Fragment() {
             requireActivity()
         )
 
+        mapView.setTileSource(TileSourceFactory.MAPNIK)
+        mapView.setMultiTouchControls(true)
+
         btnStart?.setOnClickListener {
             startTrackingSession()
         }
@@ -103,8 +107,6 @@ class TrackingSessionFragment : Fragment() {
 
     private fun setLocationMarker(locationPoint: LocationPoint){
         val geoPoint = GeoPoint(locationPoint.latitude,locationPoint.longtitude)
-        mapView.setTileSource(TileSourceFactory.MAPNIK)
-        mapView.setMultiTouchControls(true)
         mapView.controller.setCenter(geoPoint)
         marker.position=geoPoint
         marker.icon = activityContext?.let {
