@@ -101,6 +101,7 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
         averageSpeed = 0f
         speedList.clear()
         steps = 0
+        sessionId = 0
     }
 
 
@@ -162,7 +163,6 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-
     }
 
     override fun getSessionId(id: Long, getter: SessionViewModel.SessionIdGetter) {
