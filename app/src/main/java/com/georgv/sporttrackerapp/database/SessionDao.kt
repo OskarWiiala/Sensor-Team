@@ -13,7 +13,7 @@ interface SessionDao {
     fun getAll(): LiveData<List<Session>>
 
     @Query("SELECT * FROM session WHERE id = :id")
-    fun getTrackedSessionById(id:Int):LiveData<TrackedSession>
+    fun getTrackedSessionById(id:Int):TrackedSession
 
     @Query("SELECT * FROM session WHERE isRunning = 1")
     fun getRunningSession():Session

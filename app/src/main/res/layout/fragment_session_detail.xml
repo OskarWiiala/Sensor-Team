@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:minHeight="500dp">
 
-            <com.google.android.gms.maps.MapView
+            <org.osmdroid.views.MapView
                 android:id="@+id/mapView2"
                 android:layout_width="match_parent"
                 android:layout_height="303dp"

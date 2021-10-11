@@ -1,6 +1,5 @@
 package com.georgv.sporttrackerapp.data
 
-import android.location.Location
 import androidx.room.Embedded
 import androidx.room.Relation
 

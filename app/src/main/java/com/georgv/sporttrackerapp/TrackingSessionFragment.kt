@@ -56,6 +56,8 @@ class TrackingSessionFragment : Fragment() {
     private var btnStart: MaterialButton? = null
     private var btnStop: MaterialButton? = null
 
+    private lateinit var currentLoc: GeoPoint
+
     private var counter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,7 +139,7 @@ class TrackingSessionFragment : Fragment() {
         }
         svm.steps().observe(viewLifecycleOwner, stepObserver)
 
-        var currentLoc: GeoPoint
+
         var previousLoc: GeoPoint
 
         // handles drawing a line between GeoPoints in map
@@ -145,6 +147,7 @@ class TrackingSessionFragment : Fragment() {
             Log.d("locationArrayObserver","before currentLoc + counter: $counter")
             currentLoc = GeoPoint(locationArray.latitude, locationArray.longtitude)
             if(counter == 0) {
+                mapView.overlays.clear()
                 Log.d("locationArrayObserver","if previousLoc")
                 previousLoc = currentLoc
                 svm.addToLocationArray(previousLoc)
