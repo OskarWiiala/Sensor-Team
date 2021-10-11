@@ -132,16 +132,12 @@ class TrackingSessionFragment : Fragment() {
         }
         svm.getData().observe(viewLifecycleOwner, locationObserver)
 
-        val distanceObserver = Observer<Float> { totalDistance ->
-            travelDistance.text = "Distance: " + totalDistance + " m"
-            travelCalories.text = "Callories: "+ CalorieCounter.countCalories(totalDistance, weight).toString()
+        val sessionObserver = Observer<Session> { session->
+                    travelDistance.text = "Distance: " + session.distance.toString()
+                    travelSteps.text = "Steps: " + session.steps.toString()
+                    travelCalories.text = "Callories: " + session.calories.toString()
         }
-        svm.getDistance().observe(viewLifecycleOwner,distanceObserver)
-
-        val stepObserver = Observer<Long> {steps ->
-            travelSteps.text = "Steps: " + steps.toString()
-        }
-        svm.steps().observe(viewLifecycleOwner,stepObserver)
+        svm.session?.observe(viewLifecycleOwner,sessionObserver)
     }
 
     // Initiates some UI elements and handles visibility for progress bars.

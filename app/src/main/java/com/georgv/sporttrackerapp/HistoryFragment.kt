@@ -36,6 +36,6 @@ class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnIt
     }
 
     override fun onItemClick(position: Int, session: Session) {
-
+        testNavigation()
     }
 }
