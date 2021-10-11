@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">SportTrackerApp</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notification_channel_1">Notification channel n1</string>
+    <string name="notification_channel_desc">Notifications for the session</string>
 
     <!--Labels for navigation-->
     <string name="tracker_label">Tracker</string>

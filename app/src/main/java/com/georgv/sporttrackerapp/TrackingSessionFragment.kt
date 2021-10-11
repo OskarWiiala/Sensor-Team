@@ -2,8 +2,11 @@ package com.georgv.sporttrackerapp
 
 import android.Manifest
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,6 +18,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -64,7 +70,16 @@ class TrackingSessionFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityContext = activity?.applicationContext
+        createNotificationChannel()
+
+        val runningSessionObserver = Observer<Session> {Session ->
+            if(Session != null)
+                observeData()
+        }
+        svm.session?.observe(viewLifecycleOwner,runningSessionObserver)
     }
+
+
 
 
     override fun onCreateView(
@@ -96,6 +111,7 @@ class TrackingSessionFragment : Fragment() {
         }
         btnStop?.setOnClickListener {
             endTrackingSession()
+
         }
     }
 
@@ -119,7 +135,7 @@ class TrackingSessionFragment : Fragment() {
     }
 
 
-    private fun observeData(weight: Double) {
+    private fun observeData() {
         val locationObserver = Observer<LocationPoint> { newLocation ->
             travelSpeed.text =
                 "Current Speed: " + TypeConverterUtil().msToKmhConverter(newLocation.currentSpeed)
@@ -236,7 +252,7 @@ class TrackingSessionFragment : Fragment() {
                         progressCalories.visibility = View.GONE
                         marker = Marker(mapView)
                         // Setting up mark
-                        observeData(userWeightKg)
+                        observeData()
                         mapView.overlays.clear()
 
                     }
@@ -281,6 +297,19 @@ class TrackingSessionFragment : Fragment() {
             svm.stopSession()
             counter = 0
 
+            var notificationBuilder = NotificationCompat.Builder(requireContext(), getString(R.string.notification_channel_1))
+                .setSmallIcon(R.drawable.bonuspack_bubble)
+                .setContentTitle("TITLE")
+                .setContentText("SOME TEXT")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+            with(NotificationManagerCompat.from(requireContext())) {
+                // notificationId is a unique int for each notification that you must define
+                notify(R.string.notification_channel_1, notificationBuilder.build())
+            }
+
+
+
         }
         // When user cancels popup interface
         builder.setNegativeButton(
@@ -290,4 +319,21 @@ class TrackingSessionFragment : Fragment() {
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notification_channel_1)
+            val descriptionText = getString(R.string.notification_channel_desc)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(getString(R.string.notification_channel_1), name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+    }
+
 }
