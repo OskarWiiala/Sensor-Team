@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.replace
-import com.georgv.sporttrackerapp.data.Session
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -63,7 +62,4 @@ class MainActivity : AppCompatActivity() {
         transaction.replace<SessionDetailFragment>(R.id.fragmentContainer)
         transaction.commit()
     }
-
-
-
 }

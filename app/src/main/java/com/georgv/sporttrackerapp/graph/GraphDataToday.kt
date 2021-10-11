@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.util.*
 
-class GraphDataToday(val context: Application) {
+class GraphDataToday(context: Application) {
 
     // This holds data to be inserted into DataPoints
     private val hourList: MutableList<Double> = mutableListOf(
@@ -63,7 +63,7 @@ class GraphDataToday(val context: Application) {
 
         allSessions = sessionListDao.getGraphVariables()
 
-        // Adds all relevant sessions from allSessions to sessionsToday
+        // Adds all relevant sessions from allSessions to sessionsToday based on date
         for (item in allSessions) {
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
             val itemLocalDate =

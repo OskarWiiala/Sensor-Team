@@ -20,6 +20,7 @@
         android:drawablePadding="8dp"/>
 
     <Button
+        android:id="@+id/historyItemDelete"
         android:layout_width="50dp"
         android:layout_height="55dp"
         android:layout_gravity="end"

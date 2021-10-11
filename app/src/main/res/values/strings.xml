@@ -1,12 +1,16 @@
 <resources>
     <string name="app_name">SportTrackerApp</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--Labels for navigation-->
     <string name="tracker_label">Tracker</string>
     <string name="history_label">History</string>
     <string name="statistics_label">Statistics</string>
-    <string name="new_tracking_session">new session</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--Strings for TrackerFragment-->
+    <string name="new_tracking_session">new session</string>
+
+    <!--Strings for TrackingSessionFragment-->
     <string name="start_tracking">start tracking</string>
     <string name="stop_tracking">stop tracking</string>
     <string name="travel_address">Address:</string>
@@ -14,16 +18,23 @@
     <string name="travel_speed">Speed: </string>
     <string name="travel_steps">Steps: </string>
     <string name="travel_calories">Calories:</string>
-
     <string name="weight_title">Enter your weight</string>
     <string name="weight_kg">kg</string>
 
+    <!--Strings for HistoryFragment-->
     <string name="history_delete_text">X</string>
 
-    <!--Accessibility stuff-->
+    <!--Strings for SessionDetailFragment-->
+    <string name="history_detail_distance">Distance:</string>
+    <string name="history_detail_average_speed">Average speed:</string>
+    <string name="history_detail_steps">Steps:</string>
+    <string name="history_detail_calories">Calories:</string>
+
+
+    <!--Accessibility for TrackingSessionFragment-->
     <string name="content_description_session_map">Map with location and path</string>
     <string name="content_description_session_address">Your current address</string>
-    <string name="content_description_session_distance">Distance_traveled</string>
+    <string name="content_description_session_distance">Distance traveled</string>
     <string name="content_description_session_speed">Your current speed</string>
     <string name="content_description_session_steps">Your current steps taken</string>
     <string name="content_description_session_calories">Your current calories burnt</string>
@@ -33,5 +44,13 @@
     <string name="content_description_weight_input">Enter weight here</string>
     <string name="content_description_weight_kg">Kilograms</string>
 
+    <!--Accessibility for HistoryFragment-->
     <string name="content_description_history_delete">Delete history item</string>
+
+    <!--Accessibility for SessionDetailFragment-->
+    <string name="content_description_history_detail_map">Map with location and path</string>
+    <string name="content_description_history_detail_distance">Total traveled distance this session</string>
+    <string name="content_description_history_detail_average_speed">Average speed this session</string>
+    <string name="content_description_history_detail_steps">Total steps taken this session</string>
+    <string name="content_description_history_detail_calories">Total calories burnt this session</string>
 </resources>

@@ -18,7 +18,6 @@ import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
-import com.google.android.gms.location.LocationServices
 import java.util.*
 import kotlinx.coroutines.*
 
