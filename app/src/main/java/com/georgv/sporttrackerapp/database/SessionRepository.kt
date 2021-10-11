@@ -14,6 +14,10 @@ import java.util.*
 class SessionRepository(context:Application) {
     private val sessionDao: SessionDao = SessionDB.get(context).sessionDao()
 
+    fun getTrackedSession(id:Int): TrackedSession {
+        return sessionDao.getTrackedSessionById(id)
+    }
+
     fun getSession(id:Long): LiveData<Session> {
         return sessionDao.getSessionById(id)
     }

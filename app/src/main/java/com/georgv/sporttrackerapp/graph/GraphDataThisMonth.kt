@@ -14,8 +14,7 @@ import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.util.*
 
-class GraphDataThisMonth(val context: Application) {
-
+class GraphDataThisMonth(context: Application) {
     // This holds data to be inserted into DataPoints
     private val dayList: MutableList<Double> = mutableListOf(
         0.0,
@@ -70,7 +69,7 @@ class GraphDataThisMonth(val context: Application) {
 
         allSessions = sessionListDao.getGraphVariables()
 
-        // Adds all relevant sessions from allSessions to sessionsThisMonth
+        // Adds all relevant sessions from allSessions to sessionsThisMonth based on date
         for (item in allSessions) {
             val itemDate = TypeConverterUtil().fromTimestamp(item.endTime)
             val calendarItem = Calendar.getInstance()

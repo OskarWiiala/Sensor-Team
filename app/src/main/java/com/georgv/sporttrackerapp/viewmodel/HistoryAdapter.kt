@@ -1,27 +1,28 @@
-package com.georgv.sporttrackerapp
+package com.georgv.sporttrackerapp.viewmodel
 
+import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-
-
 import androidx.recyclerview.widget.RecyclerView
+import com.georgv.sporttrackerapp.R
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
 
-class HistoryAdapter(private val listener:OnItemClickListener) : ListAdapter<Session, HistoryAdapter.ViewHolder>(DiffCallback()) {
+class HistoryAdapter(private val listener: OnItemClickListener, private val context: Context) : ListAdapter<Session, HistoryAdapter.ViewHolder>(
+    DiffCallback()
+) {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),View.OnClickListener {
-        val textView: TextView
+        val textView: TextView = view.findViewById(R.id.historyItem)
 
         init {
-            textView = view.findViewById(R.id.historyItem)
             this.itemView.setOnClickListener(this)
         }
 
@@ -31,9 +32,7 @@ class HistoryAdapter(private val listener:OnItemClickListener) : ListAdapter<Ses
             if(position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position, item)
             }
-
         }
-
     }
 
     // Create new views (invoked by the layout manager)
@@ -41,6 +40,32 @@ class HistoryAdapter(private val listener:OnItemClickListener) : ListAdapter<Ses
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.history_item, viewGroup, false)
+
+        val deleteButton = view.findViewById<Button>(R.id.historyItemDelete)
+
+        deleteButton.setOnClickListener {
+            // Creates a dialog popup interface to confirm if user wants to delete session
+            val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+            builder.setCancelable(true)
+            builder.setTitle("Delete session")
+            builder.setMessage("Are you sure you want delete this session?")
+
+            // When user confirms popup interface
+            builder.setPositiveButton(
+                "Yes"
+            ) { _, _ ->
+                Log.d("confirm", "confirmed")
+            }
+
+            // When user cancels popup interface
+            builder.setNegativeButton(
+                "Cancel"
+            ) { _, _ -> Log.d("cancel", "canceled dialog interface") }
+            // Puts the popup to the screen
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+
+        }
         return ViewHolder(view)
     }
 
@@ -50,8 +75,6 @@ class HistoryAdapter(private val listener:OnItemClickListener) : ListAdapter<Ses
         // contents of the view with that element
         val item = getItem(position)
         viewHolder.textView.text = TypeConverterUtil().fromTimestamp(item.startTime).toString()
-
-
     }
 
     interface OnItemClickListener{

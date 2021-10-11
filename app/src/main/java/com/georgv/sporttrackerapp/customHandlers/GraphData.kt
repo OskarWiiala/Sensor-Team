@@ -11,6 +11,7 @@ import com.georgv.sporttrackerapp.graph.GraphDataToday
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 
+// Run in background due to making a request to the database
 class GraphData(application: Application): AndroidViewModel(application) {
     private val appContext = application
     @RequiresApi(Build.VERSION_CODES.O)

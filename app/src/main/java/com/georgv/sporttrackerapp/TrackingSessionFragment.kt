@@ -3,12 +3,7 @@ package com.georgv.sporttrackerapp
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
-import android.hardware.Sensor
-import android.hardware.SensorManager
 import android.location.Geocoder
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,37 +13,32 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.customHandlers.Permissions
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
-import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
-import java.io.IOException
-import java.util.*
 
 class TrackingSessionFragment : Fragment() {
-
     private val svm: SessionViewModel by viewModels()
-
-
     private var activityContext: Context? = null
-
 
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
@@ -66,6 +56,10 @@ class TrackingSessionFragment : Fragment() {
 
     private var btnStart: MaterialButton? = null
     private var btnStop: MaterialButton? = null
+
+    private lateinit var currentLoc: GeoPoint
+
+    private var counter = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,10 +99,10 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
-    private fun setLocationMarker(locationPoint: LocationPoint){
-        val geoPoint = GeoPoint(locationPoint.latitude,locationPoint.longtitude)
+    private fun setLocationMarker(locationPoint: LocationPoint) {
+        val geoPoint = GeoPoint(locationPoint.latitude, locationPoint.longtitude)
         mapView.controller.setCenter(geoPoint)
-        marker.position=geoPoint
+        marker.position = geoPoint
         marker.icon = activityContext?.let {
             AppCompatResources.getDrawable(
                 it,
@@ -125,19 +119,48 @@ class TrackingSessionFragment : Fragment() {
     }
 
 
-    private fun observeData(weight:Double){
-        val locationObserver = Observer<LocationPoint>{ newLocation ->
-            travelSpeed.text = "Current Speed: " + TypeConverterUtil().msToKmhConverter(newLocation.currentSpeed).toString() + " KM/H"
+    private fun observeData(weight: Double) {
+        val locationObserver = Observer<LocationPoint> { newLocation ->
+            travelSpeed.text =
+                "Current Speed: " + TypeConverterUtil().msToKmhConverter(newLocation.currentSpeed)
+                    .toString() + " KM/H"
             setLocationMarker(newLocation)
         }
         svm.getData().observe(viewLifecycleOwner, locationObserver)
 
-        val sessionObserver = Observer<Session> { session->
-                    travelDistance.text = "Distance: " + session.distance.toString()
-                    travelSteps.text = "Steps: " + session.steps.toString()
-                    travelCalories.text = "Callories: " + session.calories.toString()
+        val sessionObserver = Observer<Session> {session->
+            travelDistance.text = "Distance: " + session.distance.toString()
+            travelSteps.text = "Steps: " + session.steps.toString()
+            travelCalories.text = "Callories: " + session.calories.toString()
         }
         svm.session?.observe(viewLifecycleOwner,sessionObserver)
+
+
+
+        var previousLoc: GeoPoint
+
+        // handles drawing a line between GeoPoints in map
+        val locationArrayObserver = Observer<LocationPoint> { locationPoint ->
+            Log.d("locationArrayObserver","before currentLoc + counter: $counter")
+            currentLoc = GeoPoint(locationPoint.latitude, locationPoint.longtitude)
+            if(counter == 0) {
+                mapView.overlays.clear()
+                Log.d("locationArrayObserver","if previousLoc")
+                previousLoc = currentLoc
+                svm.addToLocationArray(previousLoc)
+            } else {
+                Log.d("locationArrayObserver","counter: $counter")
+                Log.d("locationArrayObserver","else previousLoc")
+                previousLoc = svm.getLocationArray().last()
+                svm.addToLocationArray(currentLoc)
+            }
+            Log.d("locationArrayObserver","before counter")
+            counter++
+            val line = Polyline()
+            line.setPoints(svm.getLocationArray())
+            mapView.overlays.add(line)
+        }
+        svm.getData().observe(viewLifecycleOwner, locationArrayObserver)
     }
 
     // Initiates some UI elements and handles visibility for progress bars.
@@ -165,7 +188,6 @@ class TrackingSessionFragment : Fragment() {
 
         btnStop?.visibility = View.GONE
     }
-
 
 
     // Starts sports tracking session when user presses start tracking-button
@@ -215,6 +237,7 @@ class TrackingSessionFragment : Fragment() {
                         marker = Marker(mapView)
                         // Setting up mark
                         observeData(userWeightKg)
+                        mapView.overlays.clear()
 
                     }
 
@@ -254,7 +277,9 @@ class TrackingSessionFragment : Fragment() {
             Log.d("confirm", "confirmed")
             btnStop?.visibility = View.GONE
             btnStart?.visibility = View.VISIBLE
+            Log.d("locationArrayObserver","stopped session")
             svm.stopSession()
+            counter = 0
 
         }
         // When user cancels popup interface
@@ -265,22 +290,4 @@ class TrackingSessionFragment : Fragment() {
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
-
-
-
-
-
-
-// Creates line between GeoPoints on map (user can see black line between visited locations)
-//            val line = Polyline()
-//            line.setPoints(svm.locations.value)
-//            mapView.overlays.add(line)
-
-
-
-
-
-
-
-
 }

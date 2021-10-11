@@ -9,6 +9,7 @@ import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.database.SessionDB
 import java.util.*
 import kotlinx.coroutines.*
+import org.osmdroid.util.GeoPoint
 
 
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
@@ -27,6 +28,12 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     private var locationData = TrackedSessionLiveData(application)
     fun getData() = locationData
 
+    private var locationArray: MutableList<GeoPoint> = mutableListOf()
+    fun getLocationArray(): List<GeoPoint> = locationArray
+
+    fun addToLocationArray(location: GeoPoint) {
+        locationArray.add(location)
+    }
 
 
     fun startSession(){
@@ -43,7 +50,7 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     fun stopSession(){
         val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
         GlobalScope.launch {
-            db.sessionDao().endSessionUpdate(false,timestamp,runningSessionId)
+            db.sessionDao().finalSessionUpdate(false,timestamp,runningSessionId)
             locationData.stopLocationUpdates()
         }
         runningSessionId = 0
@@ -54,8 +61,4 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     interface SessionIdGetter{
         fun getSessionId(id:Long,getter: SessionIdGetter)
     }
-
-
-
-
 }
