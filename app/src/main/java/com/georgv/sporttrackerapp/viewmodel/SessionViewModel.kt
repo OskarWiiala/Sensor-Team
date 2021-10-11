@@ -20,10 +20,7 @@ import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import java.util.*
 import kotlinx.coroutines.*
-
-
-
-
+import org.osmdroid.util.GeoPoint
 
 
 class SessionViewModel(application: Application) : AndroidViewModel(application),SensorEventListener {
@@ -34,6 +31,16 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     val sessions: LiveData<List<Session>>
         get() = repo.getData()
 
+    private var locationArray: MutableList<GeoPoint> = mutableListOf()
+
+    fun getLocationArray(): List<GeoPoint> {
+        return locationArray
+    }
+
+    fun addToLocationArray(location: GeoPoint) {
+        locationArray.add(location)
+    }
+
     private var locationData = TrackedSessionLiveData(application)
     fun getData() = locationData
 
@@ -42,8 +49,8 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     private var _steps = MutableLiveData<Long>(0)
     fun steps():LiveData<Long> = _steps
 
-    private var _callories = MutableLiveData<Double>()
-    fun callories():LiveData<Double> = _callories
+    private var _calories = MutableLiveData<Double>()
+    fun calories():LiveData<Double> = _calories
 
 
     fun startSession(){
@@ -60,17 +67,16 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     fun stopSession(){
         val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
         locationData.stopLocationUpdates()
+        locationArray.clear()
+        Log.d("locationArrayObserver","locationArray cleared")
         GlobalScope.launch {
             getDistance().value?.let { _steps.value?.let { it1 ->
                 db.sessionDao().update(false,timestamp, it, 100f,
                     it1,100, runningSessionId)
             } }
             _steps.postValue(0)
-            _callories.postValue(0.0)
-
+            _calories.postValue(0.0)
         }
-
-
     }
 
     private fun startStepCounter(context: Context){

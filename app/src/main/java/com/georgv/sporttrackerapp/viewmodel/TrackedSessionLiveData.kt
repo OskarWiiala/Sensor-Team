@@ -94,7 +94,7 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),Sessi
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
         totalDistanceTraveled.postValue(0f)
-        value = LocationPoint(0,sessionId,0.0,0.0,0f)
+        //value = LocationPoint(0,sessionId,0.0,0.0,0f)
     }
 
 
