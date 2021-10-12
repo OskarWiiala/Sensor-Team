@@ -16,12 +16,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.georgv.sporttrackerapp.R
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
+import com.georgv.sporttrackerapp.database.LocationPointDao
+import com.georgv.sporttrackerapp.database.SessionDB
+import com.georgv.sporttrackerapp.database.SessionDao
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.util.*
 
 class HistoryAdapter(private val listener: OnItemClickListener, private val context: Context) : ListAdapter<Session, HistoryAdapter.ViewHolder>(
     DiffCallback()
 ) {
+    private val sessionDao: SessionDao = SessionDB.get(context).sessionDao()
+    private val locationPointDao:LocationPointDao = SessionDB.get(context).locationPointDao()
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),View.OnClickListener {
         val textView: TextView = view.findViewById(R.id.historyItem)
@@ -45,8 +52,15 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.history_item, viewGroup, false)
 
-        val deleteButton = view.findViewById<Button>(R.id.historyItemDelete)
 
+        return ViewHolder(view)
+    }
+
+    // Replace the contents of a view (invoked by the layout manager)
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int)  {
+
+        val deleteButton = viewHolder.itemView.findViewById<Button>(R.id.historyItemDelete)
         deleteButton.setOnClickListener {
             // Creates a dialog popup interface to confirm if user wants to delete session
             val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -59,6 +73,10 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
                 "Yes"
             ) { _, _ ->
                 Log.d("confirm", "confirmed")
+                GlobalScope.launch {
+                    locationPointDao.deleteLocationsBySession(getItem(position).id)
+                    sessionDao.deleteById(getItem(position).id)
+                }
             }
 
             // When user cancels popup interface
@@ -70,12 +88,6 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
             dialog.show()
 
         }
-        return ViewHolder(view)
-    }
-
-    // Replace the contents of a view (invoked by the layout manager)
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int)  {
 
         // Uses Day/Month/Year Hour/Minute/Second as displayed text for viewHolder
         val item = getItem(position)

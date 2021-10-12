@@ -24,6 +24,7 @@ class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnIt
             (recyclerView.adapter as HistoryAdapter).submitList(it)
         }
 
+
     }
 
     override fun onItemClick(position: Int, sessionId: Long) {

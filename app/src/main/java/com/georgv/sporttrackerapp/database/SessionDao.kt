@@ -15,13 +15,10 @@ interface SessionDao {
     fun getAll(): LiveData<List<Session>>
 
     @Query("SELECT * FROM session WHERE id = :id")
-    fun getTrackedSessionById(id:Long):TrackedSession
-
-    @Query("SELECT * FROM session WHERE id = :id")
     fun getSessionFlowById(id:Long): Flow<Session>
 
-    @Query("SELECT * FROM session WHERE isRunning = 1")
-    fun getRunningSession():Session
+    @Query("SELECT * FROM session WHERE id = :id")
+    fun getTrackedSessionById(id:Long):TrackedSession
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(session: Session): Long
@@ -37,6 +34,12 @@ interface SessionDao {
     @Query("SELECT endTime, distance, averageSpeed, steps, calories FROM session")
     fun getGraphVariables(): List<GraphListData>
 
+    @Query("DELETE FROM session WHERE id=:id")
+    fun deleteById(id:Long)
+
+    @Delete
+    fun delete(session: Session)
+
 }
 
 
@@ -47,4 +50,7 @@ interface LocationPointDao{
 
     @Query("SELECT * FROM locationpoint WHERE sessionID = :id")
     fun getBySessionId(id: Long):List<LocationPoint>
+
+    @Query("DELETE FROM locationpoint WHERE sessionID = :id")
+    fun deleteLocationsBySession(id:Long)
 }

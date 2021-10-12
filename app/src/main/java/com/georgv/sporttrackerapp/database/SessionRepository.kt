@@ -27,9 +27,6 @@ class SessionRepository(context:Application) {
         return sessionDao.getAll()
     }
 
-    fun getRunningSession(): Session{
-        return sessionDao.getRunningSession()
-    }
 
 //    @RequiresApi(Build.VERSION_CODES.O)
 //    fun getDay(): List<Session> {
