@@ -1,12 +1,19 @@
 package com.georgv.sporttrackerapp
 
+import android.R.attr
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.replace
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.R.attr.tag
 
-class MainActivity : AppCompatActivity() {
+
+
+
+class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,12 +50,7 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    private fun navigateToHistory() {
-        Log.d("MainActivity.kt","BottomNavigation history clicked")
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace<HistoryFragment>(R.id.fragmentContainer)
-        transaction.commit()
-    }
+
 
     private fun navigateToStatistics() {
         Log.d("MainActivity.kt","BottomNavigation statistics clicked")
@@ -57,9 +59,24 @@ class MainActivity : AppCompatActivity() {
         transaction.commit()
     }
 
-    fun navigateToDetailView(){
+    private fun navigateToHistory() {
+        Log.d("MainActivity.kt","BottomNavigation history clicked")
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace<HistoryFragment>(R.id.fragmentContainer)
+        transaction.commit()
+    }
+
+    private fun navigateToDetailView():SessionDetailFragment{
+        val fragment:SessionDetailFragment = SessionDetailFragment()
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace<SessionDetailFragment>(R.id.fragmentContainer)
-        transaction.commit()
+        .replace(R.id.fragmentContainer,fragment).commit()
+        return fragment
+
+    }
+
+    override fun sendId(id:Long) {
+        val f = navigateToDetailView()
+        f.getSessionID(id)
     }
 }

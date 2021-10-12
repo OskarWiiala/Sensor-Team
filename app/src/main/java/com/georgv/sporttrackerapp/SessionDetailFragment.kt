@@ -14,6 +14,7 @@ import com.georgv.sporttrackerapp.customHandlers.PolylineColorUtil
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.georgv.sporttrackerapp.database.SessionDao
+import com.georgv.sporttrackerapp.viewmodel.HistoryAdapter
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +34,11 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     private var activityContext: Context? = null
 
     private lateinit var session: TrackedSession
+    private var _sessionID:Long = 0
+    fun getSessionID(id:Long){
+        _sessionID = id
+    }
+
     private lateinit var marker: Marker
 
     val svm: SessionViewModel by viewModels()
@@ -59,6 +65,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
 
+        Log.d(_sessionID.toString(),"ID")
         lifecycleScope.launch(Dispatchers.Main) {
             fetchFromDatabase()
         }
@@ -68,9 +75,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     private fun fetchFromDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
             val sessionListDao: SessionDao = SessionDB.get(requireContext()).sessionDao()
-            session = sessionListDao.getTrackedSessionById(3)
-            Log.d("fetchFromDatabase()", "session: ${session.session}")
-            Log.d("fetchFromDatabase()", "locationPoints: ${session.locationPoints}")
+            session = sessionListDao.getTrackedSessionById(_sessionID)
             val locationGeoPoints = mutableListOf<GeoPoint>()
             for (item in session.locationPoints!!) {
                 locationGeoPoints.add(GeoPoint(item.latitude, item.longtitude))
@@ -131,6 +136,8 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
             }
         }
     }
+
+
 }
 
 

@@ -34,7 +34,7 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
             val position:Int = adapterPosition
             val item = getItem(position)
             if(position != RecyclerView.NO_POSITION) {
-                listener.onItemClick(position, item)
+                listener.onItemClick(position, item.id)
             }
         }
     }
@@ -98,7 +98,7 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
     }
 
     interface OnItemClickListener{
-        fun onItemClick(position:Int, session: Session)
+        fun onItemClick(position:Int, sessionID: Long)
     }
 
 }

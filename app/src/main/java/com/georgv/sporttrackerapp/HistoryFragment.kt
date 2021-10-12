@@ -23,15 +23,15 @@ class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnIt
         cmp.sessions.observe(viewLifecycleOwner) {
             (recyclerView.adapter as HistoryAdapter).submitList(it)
         }
+
     }
 
-
-    private fun testNavigation() {
+    override fun onItemClick(position: Int, sessionId: Long) {
         val activity = requireView().context as MainActivity
-        activity.navigateToDetailView()
+        activity.sendId(sessionId)
     }
 
-    override fun onItemClick(position: Int, session: Session) {
-        testNavigation()
+    interface SendId{
+        fun sendId(id:Long)
     }
 }

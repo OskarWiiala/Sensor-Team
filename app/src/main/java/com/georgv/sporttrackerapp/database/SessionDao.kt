@@ -15,7 +15,7 @@ interface SessionDao {
     fun getAll(): LiveData<List<Session>>
 
     @Query("SELECT * FROM session WHERE id = :id")
-    fun getTrackedSessionById(id:Int):TrackedSession
+    fun getTrackedSessionById(id:Long):TrackedSession
 
     @Query("SELECT * FROM session WHERE id = :id")
     fun getSessionFlowById(id:Long): Flow<Session>
