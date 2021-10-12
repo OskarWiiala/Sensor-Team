@@ -158,7 +158,6 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
     }
 
     override fun onSensorChanged(p0: SensorEvent?) {
-        Log.d(p0.toString(), "EVENT")
         steps++
     }
 
