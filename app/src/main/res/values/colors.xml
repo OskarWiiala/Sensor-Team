@@ -9,4 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dropdown_blue">#DEEFFB</color>
     <color name="red">#950000</color>
+    <color name="light_blue">#82CAE1</color>
+    <color name="orange">#FFA500</color>
+    <color name="light_red">#FF7F7F</color>
+    <color name="red2">#FF0000</color>
 </resources>

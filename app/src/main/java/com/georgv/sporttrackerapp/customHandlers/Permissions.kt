@@ -8,7 +8,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 
-object Permissions {
+class Permissions {
     fun askForPermissions(perms: String?, activity: FragmentActivity) {
         if(perms == "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION") {
             activity.let {

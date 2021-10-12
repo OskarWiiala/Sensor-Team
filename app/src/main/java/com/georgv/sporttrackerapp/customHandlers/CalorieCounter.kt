@@ -1,6 +1,6 @@
 package com.georgv.sporttrackerapp.customHandlers
 
-object CalorieCounter {
+class CalorieCounter {
     fun countCalories(
         totalDistance: Float,
         userWeight: Double

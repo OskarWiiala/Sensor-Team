@@ -70,14 +70,14 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
                 GlobalScope.launch {
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
-                    val caloiries = CalorieCounter.countCalories(totalDistanceTraveled, 50.5)
+                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, 50.5)
                     db.sessionDao().update(
                         true,
                         null,
                         totalDistanceTraveled,
                         averageSpeed,
                         steps,
-                        caloiries,
+                        calories,
                         sessionId
                     )
                 }
