@@ -6,6 +6,8 @@ import com.georgv.sporttrackerapp.data.GraphListData
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
+import kotlinx.coroutines.flow.Flow
+
 
 @Dao
 interface SessionDao {
@@ -16,13 +18,13 @@ interface SessionDao {
     fun getTrackedSessionById(id:Int):TrackedSession
 
     @Query("SELECT * FROM session WHERE id = :id")
-    fun getSessionById(id:Long): LiveData<Session>
+    fun getSessionFlowById(id:Long): Flow<Session>
 
     @Query("SELECT * FROM session WHERE isRunning = 1")
     fun getRunningSession():Session
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
-    fun insert(session: Session): Long
+    suspend fun insert(session: Session): Long
 
     @Query("UPDATE session SET isRunning=:isRunning, endTime=:endTime WHERE id=:id")
     fun finalSessionUpdate(

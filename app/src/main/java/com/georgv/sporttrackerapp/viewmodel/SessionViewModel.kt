@@ -2,8 +2,10 @@ package com.georgv.sporttrackerapp.viewmodel
 
 import SessionRepository
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.database.SessionDB
@@ -16,14 +18,14 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
 
     private var db: SessionDB = SessionDB.get(getApplication())
     private var repo: SessionRepository = SessionRepository(application)
-    private var runningSessionId:Long = 0
+    private var runningSessionId: Long = 0
 
     val sessions: LiveData<List<Session>>
         get() = repo.getData()
 
-    private var _session:LiveData<Session>? = null
-    val session:LiveData<Session>?
-    get()=_session
+    private var _session: LiveData<Session>? = null
+    val session: LiveData<Session>?
+        get() = _session
 
     private var locationData = TrackedSessionLiveData(application)
     fun getData() = locationData
@@ -36,29 +38,37 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-    fun startSession(){
-        val timestamp = TypeConverterUtil().dateToTimestamp(Date())
-        val thisSession = Session(0,timestamp,true,null,null,null,null,null)
-        GlobalScope.launch {
-            runningSessionId = db.sessionDao().insert(thisSession)
+    fun startSession() {
+        runBlocking {
+            val createSession = GlobalScope.async { storeToDatabase() }
+            runningSessionId = createSession.await()
             locationData.getSessionId(runningSessionId, getData())
-            _session = repo.getSession(runningSessionId)
+            _session = repo.getSession(runningSessionId).asLiveData()
         }
         locationData.startLocationUpdates()
     }
 
-    fun stopSession(){
-        val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
-        GlobalScope.launch {
-            db.sessionDao().finalSessionUpdate(false,timestamp,runningSessionId)
-            locationData.stopLocationUpdates()
-        }
-        runningSessionId = 0
-        _session = null
+    suspend fun storeToDatabase(): Long {
+        val timestamp = TypeConverterUtil().dateToTimestamp(Date())
+        val thisSession = Session(0, timestamp, true, null, null, null, null, null)
+        val thisSessionId = db.sessionDao().insert(thisSession)
+        return thisSessionId
     }
 
 
-    interface SessionIdGetter{
-        fun getSessionId(id:Long,getter: SessionIdGetter)
+    fun stopSession() {
+        GlobalScope.launch {
+            val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
+            db.sessionDao().finalSessionUpdate(false, timestamp, runningSessionId)
+            locationData.stopLocationUpdates()
+            runningSessionId = 0
+            _session = null
+        }
+
+    }
+
+
+    interface SessionIdGetter {
+        fun getSessionId(id: Long, getter: SessionIdGetter)
     }
 }

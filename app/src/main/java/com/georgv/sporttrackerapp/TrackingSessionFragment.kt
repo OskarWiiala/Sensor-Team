@@ -33,6 +33,7 @@ import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
@@ -72,11 +73,11 @@ class TrackingSessionFragment : Fragment() {
         activityContext = activity?.applicationContext
         createNotificationChannel()
 
-        val runningSessionObserver = Observer<Session> {Session ->
-            if(Session != null)
-                observeData()
-        }
-        svm.session?.observe(viewLifecycleOwner,runningSessionObserver)
+//        val runningSessionObserver = Observer<Session> {Session ->
+//            if(Session != null)
+//                observeData()
+//        }
+//        svm.session?.observe(viewLifecycleOwner,runningSessionObserver)
     }
 
 
@@ -234,22 +235,22 @@ class TrackingSessionFragment : Fragment() {
                         svm.startSession()
 
                         Log.d("confirm", "confirmed")
-                        progressAddress.visibility = View.VISIBLE
-                        progressDistance.visibility = View.VISIBLE
-                        progressSpeed.visibility = View.VISIBLE
-                        progressSteps.visibility = View.VISIBLE
-                        progressCalories.visibility = View.VISIBLE
+//                        progressAddress.visibility = View.VISIBLE
+//                        progressDistance.visibility = View.VISIBLE
+//                        progressSpeed.visibility = View.VISIBLE
+//                        progressSteps.visibility = View.VISIBLE
+//                        progressCalories.visibility = View.VISIBLE
                         // The numerical value of the user's weight
                         val userWeightKg = userInput.text.toString().toDouble()
 
 
                         btnStart?.visibility = View.GONE
                         btnStop?.visibility = View.VISIBLE
-                        progressAddress.visibility = View.GONE
-                        progressDistance.visibility = View.GONE
-                        progressSpeed.visibility = View.GONE
-                        progressSteps.visibility = View.GONE
-                        progressCalories.visibility = View.GONE
+//                        progressAddress.visibility = View.GONE
+//                        progressDistance.visibility = View.GONE
+//                        progressSpeed.visibility = View.GONE
+//                        progressSteps.visibility = View.GONE
+//                        progressCalories.visibility = View.GONE
                         marker = Marker(mapView)
                         // Setting up mark
                         observeData()
