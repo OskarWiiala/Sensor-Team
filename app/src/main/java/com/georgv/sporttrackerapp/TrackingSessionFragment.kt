@@ -5,7 +5,7 @@ import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.location.Geocoder
+import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,27 +20,23 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.customHandlers.Permissions
+import com.georgv.sporttrackerapp.customHandlers.PolylineColorUtil
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.advancedpolyline.PolychromaticPaintList
 
 class TrackingSessionFragment : Fragment() {
     private val svm: SessionViewModel by viewModels()
@@ -48,13 +44,11 @@ class TrackingSessionFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var marker: Marker
-    private lateinit var textAddress: TextView
     private lateinit var travelDistance: TextView
     private lateinit var travelSpeed: TextView
     private lateinit var travelSteps: TextView
     private lateinit var travelCalories: TextView
 
-    private lateinit var progressAddress: ProgressBar
     private lateinit var progressDistance: ProgressBar
     private lateinit var progressSpeed: ProgressBar
     private lateinit var progressSteps: ProgressBar
@@ -72,14 +66,12 @@ class TrackingSessionFragment : Fragment() {
         activityContext = activity?.applicationContext
         createNotificationChannel()
 
-        val runningSessionObserver = Observer<Session> {Session ->
-            if(Session != null)
+        val runningSessionObserver = Observer<Session> { Session ->
+            if (Session != null)
                 observeData()
         }
-        svm.session?.observe(viewLifecycleOwner,runningSessionObserver)
+        svm.session?.observe(viewLifecycleOwner, runningSessionObserver)
     }
-
-
 
 
     override fun onCreateView(
@@ -98,7 +90,7 @@ class TrackingSessionFragment : Fragment() {
 
         initiateValues(view)
 
-        Permissions.askForPermissions(
+        Permissions().askForPermissions(
             "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
             requireActivity()
         )
@@ -144,37 +136,55 @@ class TrackingSessionFragment : Fragment() {
         }
         svm.getData().observe(viewLifecycleOwner, locationObserver)
 
-        val sessionObserver = Observer<Session> {session->
+        val sessionObserver = Observer<Session> { session ->
             travelDistance.text = "Distance: " + session.distance.toString()
             travelSteps.text = "Steps: " + session.steps.toString()
-            travelCalories.text = "Callories: " + session.calories.toString()
+            travelCalories.text = "Calories: " + session.calories.toString()
         }
-        svm.session?.observe(viewLifecycleOwner,sessionObserver)
-
-
+        svm.session?.observe(viewLifecycleOwner, sessionObserver)
 
         var previousLoc: GeoPoint
-
         // handles drawing a line between GeoPoints in map
         val locationArrayObserver = Observer<LocationPoint> { locationPoint ->
-            Log.d("locationArrayObserver","before currentLoc + counter: $counter")
+            Log.d("locationArrayObserver", "before currentLoc + counter: $counter")
             currentLoc = GeoPoint(locationPoint.latitude, locationPoint.longtitude)
-            if(counter == 0) {
+            if (counter == 0) {
                 mapView.overlays.clear()
-                Log.d("locationArrayObserver","if previousLoc")
+                Log.d("locationArrayObserver", "if previousLoc")
                 previousLoc = currentLoc
                 svm.addToLocationArray(previousLoc)
             } else {
-                Log.d("locationArrayObserver","counter: $counter")
-                Log.d("locationArrayObserver","else previousLoc")
+                Log.d("locationArrayObserver", "counter: $counter")
+                Log.d("locationArrayObserver", "else previousLoc")
                 previousLoc = svm.getLocationArray().last()
                 svm.addToLocationArray(currentLoc)
             }
-            Log.d("locationArrayObserver","before counter")
-            counter++
+            Log.d("locationArrayObserver", "before counter")
+
+            // handles drawing a line between GeoPoints in map. Also assigns a color to the line based on speed.
             val line = Polyline()
-            line.setPoints(svm.getLocationArray())
+            val pPaint = Paint()
+            pPaint.strokeWidth = 10F
+
+            val pColorMap = PolylineColorUtil(requireContext(), locationPoint.currentSpeed)
+
+            // handles adding the correct GeoPoints to the line which are used to assign the correct line color based on user's speed.
+            if (counter == 0 || counter == 1) {
+                line.setPoints(svm.getLocationArray())
+            } else {
+                val geoPointList = mutableListOf<GeoPoint>()
+                val arraySize = svm.getLocationArray().size
+                val secondLast = svm.getLocationArray()[arraySize-2]
+                val last = svm.getLocationArray().last()
+                geoPointList.add(secondLast)
+                geoPointList.add(last)
+                line.setPoints(geoPointList)
+            }
+
+            line.outlinePaintLists.add(PolychromaticPaintList(pPaint, pColorMap, false))
             mapView.overlays.add(line)
+            counter++
+
         }
         svm.getData().observe(viewLifecycleOwner, locationArrayObserver)
     }
@@ -183,20 +193,18 @@ class TrackingSessionFragment : Fragment() {
     private fun initiateValues(view: View) {
         btnStart = view.findViewById(R.id.btnStart)
         btnStop = view.findViewById(R.id.btnStop)
-        textAddress = view.findViewById(R.id.textAddress)
+
         travelDistance = view.findViewById(R.id.travelDistance)
         travelSpeed = view.findViewById(R.id.travelSpeed)
         travelSteps = view.findViewById(R.id.travelSteps)
         travelCalories = view.findViewById(R.id.travelCalories)
         mapView = view.findViewById(R.id.mapView)
 
-        progressAddress = view.findViewById(R.id.progressAddress)
         progressDistance = view.findViewById(R.id.progressDistance)
         progressSpeed = view.findViewById(R.id.progressSpeed)
         progressSteps = view.findViewById(R.id.progressSteps)
         progressCalories = view.findViewById(R.id.progressCalories)
 
-        progressAddress.visibility = View.GONE
         progressDistance.visibility = View.GONE
         progressSpeed.visibility = View.GONE
         progressSteps.visibility = View.GONE
@@ -234,7 +242,6 @@ class TrackingSessionFragment : Fragment() {
                         svm.startSession()
 
                         Log.d("confirm", "confirmed")
-                        progressAddress.visibility = View.VISIBLE
                         progressDistance.visibility = View.VISIBLE
                         progressSpeed.visibility = View.VISIBLE
                         progressSteps.visibility = View.VISIBLE
@@ -245,7 +252,6 @@ class TrackingSessionFragment : Fragment() {
 
                         btnStart?.visibility = View.GONE
                         btnStop?.visibility = View.VISIBLE
-                        progressAddress.visibility = View.GONE
                         progressDistance.visibility = View.GONE
                         progressSpeed.visibility = View.GONE
                         progressSteps.visibility = View.GONE
@@ -293,11 +299,14 @@ class TrackingSessionFragment : Fragment() {
             Log.d("confirm", "confirmed")
             btnStop?.visibility = View.GONE
             btnStart?.visibility = View.VISIBLE
-            Log.d("locationArrayObserver","stopped session")
+            Log.d("locationArrayObserver", "stopped session")
             svm.stopSession()
             counter = 0
 
-            var notificationBuilder = NotificationCompat.Builder(requireContext(), getString(R.string.notification_channel_1))
+            var notificationBuilder = NotificationCompat.Builder(
+                requireContext(),
+                getString(R.string.notification_channel_1)
+            )
                 .setSmallIcon(R.drawable.bonuspack_bubble)
                 .setContentTitle("TITLE")
                 .setContentText("SOME TEXT")
@@ -307,7 +316,6 @@ class TrackingSessionFragment : Fragment() {
                 // notificationId is a unique int for each notification that you must define
                 notify(R.string.notification_channel_1, notificationBuilder.build())
             }
-
 
 
         }
@@ -327,13 +335,17 @@ class TrackingSessionFragment : Fragment() {
             val name = getString(R.string.notification_channel_1)
             val descriptionText = getString(R.string.notification_channel_desc)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(getString(R.string.notification_channel_1), name, importance).apply {
+            val channel = NotificationChannel(
+                getString(R.string.notification_channel_1),
+                name,
+                importance
+            ).apply {
                 description = descriptionText
             }
             // Register the channel with the system
-            val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager =
+                requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
-
 }

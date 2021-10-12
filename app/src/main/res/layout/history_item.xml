@@ -17,7 +17,7 @@
         android:layout_marginBottom="8dp"
         android:textSize="25sp"
         app:drawableLeftCompat="@drawable/ic_save_24"
-        android:drawablePadding="8dp"/>
+        android:drawablePadding="8dp" />
 
     <Button
         android:id="@+id/historyItemDelete"
@@ -31,4 +31,12 @@
         android:text="@string/history_delete_text"
         android:textSize="25sp"
         android:textColor="@color/white"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_gravity="bottom"/>
 </FrameLayout>

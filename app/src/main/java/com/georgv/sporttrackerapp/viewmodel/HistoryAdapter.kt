@@ -2,18 +2,22 @@ package com.georgv.sporttrackerapp.viewmodel
 
 import android.app.AlertDialog
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.georgv.sporttrackerapp.R
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.Session
+import java.time.ZoneId
+import java.util.*
 
 class HistoryAdapter(private val listener: OnItemClickListener, private val context: Context) : ListAdapter<Session, HistoryAdapter.ViewHolder>(
     DiffCallback()
@@ -70,11 +74,27 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
     }
 
     // Replace the contents of a view (invoked by the layout manager)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int)  {
-        // Get element from your dataset at this position and replace the
-        // contents of the view with that element
+
+        // Uses Day/Month/Year Hour/Minute/Second as displayed text for viewHolder
         val item = getItem(position)
-        viewHolder.textView.text = TypeConverterUtil().fromTimestamp(item.startTime).toString()
+        val itemDate = TypeConverterUtil().fromTimestamp(item.startTime)
+        val itemLocalDate =
+            itemDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        val itemYear = itemLocalDate.year
+        val itemMonth = itemLocalDate.month.toString().take(3)
+        val itemDay = itemLocalDate.dayOfMonth
+
+        val cal = Calendar.getInstance()
+        cal.time = itemDate
+        val itemHour = cal[Calendar.HOUR_OF_DAY]
+        val itemMinute = cal[Calendar.MINUTE]
+        val itemSecond = cal[Calendar.SECOND]
+
+        val itemDisplayDate = ("$itemDay $itemMonth $itemYear\n$itemHour:$itemMinute:$itemSecond")
+        viewHolder.textView.text = itemDisplayDate
+
     }
 
     interface OnItemClickListener{

@@ -1,6 +1,7 @@
 package com.georgv.sporttrackerapp
 
 import android.content.Context
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,8 +9,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import com.georgv.sporttrackerapp.customHandlers.PolylineColorUtil
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.georgv.sporttrackerapp.database.SessionDao
@@ -21,8 +22,9 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.advancedpolyline.PolychromaticPaintList
 
-class SessionDetailFragment : Fragment(R.layout.fragment_session_detail){
+class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     private lateinit var mapView: MapView
     private lateinit var distanceView: TextView
     private lateinit var averageSpeedView: TextView
@@ -33,7 +35,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail){
     private lateinit var session: TrackedSession
     private lateinit var marker: Marker
 
-    val svm:SessionViewModel by viewModels()
+    val svm: SessionViewModel by viewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //val session = svm.getSessionById(0)
@@ -61,14 +63,14 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail){
             fetchFromDatabase()
         }
 
-   }
+    }
 
     private fun fetchFromDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
             val sessionListDao: SessionDao = SessionDB.get(requireContext()).sessionDao()
             session = sessionListDao.getTrackedSessionById(3)
-            Log.d("fetchFromDatabase()","session: ${session.session}")
-            Log.d("fetchFromDatabase()","locationPoints: ${session.locationPoints}")
+            Log.d("fetchFromDatabase()", "session: ${session.session}")
+            Log.d("fetchFromDatabase()", "locationPoints: ${session.locationPoints}")
             val locationGeoPoints = mutableListOf<GeoPoint>()
             for (item in session.locationPoints!!) {
                 locationGeoPoints.add(GeoPoint(item.latitude, item.longtitude))
@@ -98,9 +100,34 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail){
                 mapView.overlays.add(marker)
                 mapView.invalidate()
 
-                val line = Polyline()
-                line.setPoints(locationGeoPoints)
-                mapView.overlays.add(line)
+
+                var counter = 0
+                for (item in session.locationPoints!!) {
+                    // handles drawing a line between GeoPoints in map. Also assigns a color to the line based on speed.
+                    val line = Polyline()
+                    val pPaint = Paint()
+                    pPaint.strokeWidth = 10F
+
+                    val pColorMap = PolylineColorUtil(requireContext(), item.currentSpeed)
+
+                // handles adding the correct GeoPoints to the line which are used to assign the correct line color based on user's speed.
+                    if (counter == 0 || counter == 1) {
+                        line.setPoints(locationGeoPoints)
+                    } else {
+                        val geoPointList = mutableListOf<GeoPoint>()
+                        val arraySize = locationGeoPoints.size
+                        val secondLast = locationGeoPoints[arraySize - 2]
+                        val last = locationGeoPoints.last()
+                        geoPointList.add(secondLast)
+                        geoPointList.add(last)
+                        line.setPoints(geoPointList)
+                    }
+
+                    line.outlinePaintLists.add(PolychromaticPaintList(pPaint, pColorMap, false))
+                    line.setPoints(locationGeoPoints)
+                    mapView.overlays.add(line)
+                    counter++
+                }
             }
         }
     }

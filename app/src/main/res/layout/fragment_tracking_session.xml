@@ -35,22 +35,13 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ProgressBar
-                android:id="@+id/progressAddress"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="32dp"
-                android:indeterminate="true"
-                app:layout_constraintStart_toEndOf="@id/textAddress"
-                app:layout_constraintTop_toBottomOf="@id/mapViewContainer" />
-
-            <ProgressBar
                 android:id="@+id/progressDistance"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="8dp"
                 android:indeterminate="true"
                 app:layout_constraintStart_toEndOf="@id/travelDistance"
-                app:layout_constraintTop_toBottomOf="@id/textAddress" />
+                app:layout_constraintTop_toBottomOf="@id/mapViewContainer" />
 
             <ProgressBar
                 android:id="@+id/progressSpeed"
@@ -79,20 +70,6 @@
                 app:layout_constraintStart_toEndOf="@id/travelCalories"
                 app:layout_constraintTop_toBottomOf="@id/travelSteps" />
 
-            <TextView
-                android:id="@+id/textAddress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:contentDescription="@string/content_description_session_address"
-                android:paddingStart="32dp"
-                android:paddingEnd="32dp"
-                android:text="@string/travel_address"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/travelDistance"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mapViewContainer" />
 
             <TextView
                 android:id="@+id/travelDistance"
@@ -105,7 +82,7 @@
                 android:text="@string/travel_distance"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textAddress" />
+                app:layout_constraintTop_toBottomOf="@id/mapViewContainer" />
 
             <TextView
                 android:id="@+id/travelSpeed"
