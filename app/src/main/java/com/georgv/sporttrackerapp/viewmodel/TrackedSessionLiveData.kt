@@ -143,6 +143,11 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
         }
     }
 
+    override fun onActive() {
+        super.onActive()
+
+    }
+
     override fun onSensorChanged(p0: SensorEvent?) {
         steps++
     }

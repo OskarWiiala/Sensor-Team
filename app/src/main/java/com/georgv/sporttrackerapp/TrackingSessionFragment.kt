@@ -82,13 +82,9 @@ class TrackingSessionFragment : Fragment() {
         )
         super.onViewCreated(view, savedInstanceState)
 
-        initiateValues(view)
+        setViews(view)
 
-        Permissions().askForPermissions(
-            "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
-            requireActivity()
-        )
-
+        Permissions().askForPermissions("ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION", requireActivity())
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
 
@@ -183,8 +179,7 @@ class TrackingSessionFragment : Fragment() {
         svm.getData().observe(viewLifecycleOwner, locationArrayObserver)
     }
 
-    // Initiates some UI elements and handles visibility for progress bars.
-    private fun initiateValues(view: View) {
+    private fun setViews(view: View) {
         btnStart = view.findViewById(R.id.btnStart)
         btnStop = view.findViewById(R.id.btnStop)
 
@@ -199,18 +194,12 @@ class TrackingSessionFragment : Fragment() {
         progressSteps = view.findViewById(R.id.progressSteps)
         progressCalories = view.findViewById(R.id.progressCalories)
 
-        progressDistance.visibility = View.GONE
-        progressSpeed.visibility = View.GONE
-        progressSteps.visibility = View.GONE
-        progressCalories.visibility = View.GONE
 
         btnStop?.visibility = View.GONE
     }
 
 
-    // Starts sports tracking session when user presses start tracking-button
     private fun startTrackingSession() {
-
         val perms = ActivityCompat.checkSelfPermission(
             activityContext!!,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -304,7 +293,7 @@ class TrackingSessionFragment : Fragment() {
                 .setSmallIcon(R.drawable.bonuspack_bubble)
                 .setContentTitle("Session Ended")
                 .setContentText("Your Session Is Ended And Saved To The Database!")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
 
             with(NotificationManagerCompat.from(requireContext())) {
                 notify(R.string.notification_channel_1, notificationBuilder.build())
@@ -327,7 +316,7 @@ class TrackingSessionFragment : Fragment() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.notification_channel_1)
             val descriptionText = getString(R.string.notification_channel_desc)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel(
                 getString(R.string.notification_channel_1),
                 name,
@@ -336,8 +325,7 @@ class TrackingSessionFragment : Fragment() {
                 description = descriptionText
             }
             // Register the channel with the system
-            val manager =
-                requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }

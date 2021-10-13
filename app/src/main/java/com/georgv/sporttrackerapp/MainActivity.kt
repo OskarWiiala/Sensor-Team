@@ -9,16 +9,17 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.replace
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.R.attr.tag
-
-
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModel
+import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 
 
 class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
+    private val smv:SessionViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
         bottomNav.setOnItemSelectedListener { item ->
@@ -50,8 +51,6 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
         transaction.commit()
     }
 
-
-
     private fun navigateToStatistics() {
         Log.d("MainActivity.kt","BottomNavigation statistics clicked")
         val transaction = supportFragmentManager.beginTransaction()
@@ -78,5 +77,10 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
     override fun sendId(id:Long) {
         val f = navigateToDetailView()
         f.getSessionID(id)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        smv.stopSession()
     }
 }
