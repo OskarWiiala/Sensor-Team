@@ -130,7 +130,6 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
     private fun startStepCounter() {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
-
         if (stepSensor == null) {
             Toast.makeText(context, "NO SENSOR ON THE DEVICE", Toast.LENGTH_SHORT)
                 .show()
