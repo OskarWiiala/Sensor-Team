@@ -13,6 +13,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.georgv.sporttrackerapp.TrackingSessionFragment
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.database.SessionDB
@@ -22,7 +23,7 @@ import kotlinx.coroutines.*
 
 
 class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
-    SessionViewModel.SessionIdGetter,
+    SessionViewModel.SessionIdGetter, TrackingSessionFragment.UserWeightReciever,
     SensorEventListener {
 
     private val context = context;
@@ -35,6 +36,7 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
     private var totalDistanceTraveled = 0f
 
     private var steps: Long = 0
+    private var weight:Double = 0.0
 
 
     companion object {
@@ -70,7 +72,7 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
                 GlobalScope.launch {
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
-                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, 50.5)
+                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, weight)
                     db.sessionDao().update(
                         true,
                         null,
@@ -102,25 +104,9 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
         speedList.clear()
         steps = 0
         sessionId = 0
+        weight = 0.0
     }
 
-
-    override fun onInactive() {
-        super.onInactive()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onActive() {
-        super.onActive()
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.also {
-                    setLocationPoint(location)
-                }
-            }
-        startLocationUpdates()
-    }
 
     private fun countDistance() = GlobalScope.async {
         val results = FloatArray(1)
@@ -166,6 +152,10 @@ class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
 
     override fun getSessionId(id: Long, getter: SessionViewModel.SessionIdGetter) {
         sessionId = id
+    }
+
+    override fun getWeight(thisWeight: Double) {
+        weight = thisWeight
     }
 
 

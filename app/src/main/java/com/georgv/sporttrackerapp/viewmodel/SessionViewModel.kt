@@ -42,7 +42,7 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         runBlocking {
             val createSession = GlobalScope.async { storeToDatabase() }
             runningSessionId = createSession.await()
-            locationData.getSessionId(runningSessionId, getData())
+            locationData.getSessionId(runningSessionId, locationData)
             _session = repo.getSession(runningSessionId).asLiveData()
         }
         locationData.startLocationUpdates()

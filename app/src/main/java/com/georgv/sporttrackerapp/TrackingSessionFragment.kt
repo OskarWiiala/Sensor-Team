@@ -233,27 +233,13 @@ class TrackingSessionFragment : Fragment() {
                     builder.setPositiveButton(
                         "OK"
                     ) { _, _ ->
-                        svm.startSession()
-
                         Log.d("confirm", "confirmed")
-                        progressDistance.visibility = View.VISIBLE
-                        progressSpeed.visibility = View.VISIBLE
-                        progressSteps.visibility = View.VISIBLE
-                        progressCalories.visibility = View.VISIBLE
-                        // The numerical value of the user's weight
-                        val userWeightKg = userInput.text.toString().toDouble()
-
-
-                        btnStart?.visibility = View.GONE
-                        btnStop?.visibility = View.VISIBLE
-                        progressDistance.visibility = View.GONE
-                        progressSpeed.visibility = View.GONE
-                        progressSteps.visibility = View.GONE
-                        progressCalories.visibility = View.GONE
                         marker = Marker(mapView)
-                        // Setting up mark
+                        svm.startSession()
+                        val userWeightKg = userInput.text.toString().toDouble()
+                        svm.getData().getWeight(userWeightKg)
                         observeData()
-                        mapView.overlays.clear()
+                        setUIOnSessionStart()
 
                     }
 
@@ -278,6 +264,21 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
+    private fun setUIOnSessionStart(){
+        progressDistance.visibility = View.VISIBLE
+        progressSpeed.visibility = View.VISIBLE
+        progressSteps.visibility = View.VISIBLE
+        progressCalories.visibility = View.VISIBLE
+
+        btnStart?.visibility = View.GONE
+        btnStop?.visibility = View.VISIBLE
+        progressDistance.visibility = View.GONE
+        progressSpeed.visibility = View.GONE
+        progressSteps.visibility = View.GONE
+        progressCalories.visibility = View.GONE
+        mapView.overlays.clear()
+    }
+
 
     private fun endTrackingSession() {
         // Creates a dialog popup interface to confirm if user wants to end sports tracking session
@@ -293,7 +294,6 @@ class TrackingSessionFragment : Fragment() {
             Log.d("confirm", "confirmed")
             btnStop?.visibility = View.GONE
             btnStart?.visibility = View.VISIBLE
-            Log.d("locationArrayObserver", "stopped session")
             svm.stopSession()
             counter = 0
 
@@ -302,12 +302,11 @@ class TrackingSessionFragment : Fragment() {
                 getString(R.string.notification_channel_1)
             )
                 .setSmallIcon(R.drawable.bonuspack_bubble)
-                .setContentTitle("TITLE")
-                .setContentText("SOME TEXT")
+                .setContentTitle("Session Ended")
+                .setContentText("Your Session Is Ended And Saved To The Database!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
             with(NotificationManagerCompat.from(requireContext())) {
-                // notificationId is a unique int for each notification that you must define
                 notify(R.string.notification_channel_1, notificationBuilder.build())
             }
 
@@ -341,5 +340,9 @@ class TrackingSessionFragment : Fragment() {
                 requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
+    }
+
+    interface UserWeightReciever{
+        fun getWeight(weight:Double)
     }
 }
