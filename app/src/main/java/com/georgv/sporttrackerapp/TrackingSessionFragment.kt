@@ -207,7 +207,6 @@ class TrackingSessionFragment : Fragment() {
         btnStop?.visibility = View.GONE
     }
 
-
     private fun startTrackingSession() {
         val perms = ActivityCompat.checkSelfPermission(
             activityContext!!,
@@ -268,12 +267,10 @@ class TrackingSessionFragment : Fragment() {
 
     private fun setUIOnSessionStart() {
         showProgressBars()
-
         btnStart?.visibility = View.GONE
         btnStop?.visibility = View.VISIBLE
         mapView.overlays.clear()
     }
-
 
     private fun endTrackingSession() {
         // Creates a dialog popup interface to confirm if user wants to end sports tracking session
@@ -304,8 +301,6 @@ class TrackingSessionFragment : Fragment() {
             with(NotificationManagerCompat.from(requireContext())) {
                 notify(R.string.notification_channel_1, notificationBuilder.build())
             }
-
-
         }
         // When user cancels popup interface
         builder.setNegativeButton(

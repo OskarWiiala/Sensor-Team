@@ -2,7 +2,6 @@ package com.georgv.sporttrackerapp.viewmodel
 
 import SessionRepository
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
@@ -12,7 +11,6 @@ import com.georgv.sporttrackerapp.database.SessionDB
 import java.util.*
 import kotlinx.coroutines.*
 import org.osmdroid.util.GeoPoint
-
 
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -37,7 +35,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         locationArray.add(location)
     }
 
-
     fun startSession() {
         runBlocking {
             val createSession = GlobalScope.async { storeToDatabase() }
@@ -55,7 +52,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         return thisSessionId
     }
 
-
     fun stopSession() {
         GlobalScope.launch {
             // maybe clear locationArray?
@@ -65,9 +61,7 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
             runningSessionId = 0
             _session = null
         }
-
     }
-
 
     interface SessionIdGetter {
         fun getSessionId(id: Long, getter: SessionIdGetter)

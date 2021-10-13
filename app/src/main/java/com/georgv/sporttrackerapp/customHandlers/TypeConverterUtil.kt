@@ -22,4 +22,19 @@ class TypeConverterUtil {
     fun meterToKilometerConverter(distance: Float): Double {
         return String.format(null,"%.2f", distance / 1000).toDouble()
     }
+
+    fun durationFromHourMinuteSecond(startHour:Int, startMinute:Int, startSecond:Int, endHour:Int, endMinute:Int, endSecond:Int): String {
+        var resultSecond = endSecond - startSecond
+        var resultMinute = endMinute - startMinute
+        var resultHour = endHour - startHour
+        if(resultSecond < 0) {
+            resultSecond += 60
+            resultMinute -= 1
+        }
+        if(resultMinute < 0) {
+            resultMinute += 60
+            resultHour -= 1
+        }
+        return ("$resultHour:$resultMinute:$resultSecond")
+    }
 }

@@ -89,7 +89,7 @@ class GraphDataToday(context: Application) {
             cal.time = itemDate!!
             itemHour = cal[Calendar.HOUR_OF_DAY]
             if (selectedVariable == "Distance") {
-                hourList[itemHour] += item.distance.toDouble()
+                hourList[itemHour] += TypeConverterUtil().meterToKilometerConverter(item.distance)
             }
             if (selectedVariable == "Average speed") {
                 hourList[itemHour] = hourList[itemHour] + item.averageSpeed.toDouble()

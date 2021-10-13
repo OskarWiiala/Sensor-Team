@@ -19,7 +19,6 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.*
 
-
 class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
     SessionViewModel.SessionIdGetter, TrackingSessionFragment.UserWeightReceiver,
     SensorEventListener {

@@ -23,8 +23,6 @@ class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnIt
         cmp.sessions.observe(viewLifecycleOwner) {
             (recyclerView.adapter as HistoryAdapter).submitList(it)
         }
-
-
     }
 
     override fun onItemClick(position: Int, sessionId: Long) {
