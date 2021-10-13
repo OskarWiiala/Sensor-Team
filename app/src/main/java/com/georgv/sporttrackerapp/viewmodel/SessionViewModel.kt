@@ -58,6 +58,7 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
 
     fun stopSession() {
         GlobalScope.launch {
+            // maybe clear locationArray?
             val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
             db.sessionDao().finalSessionUpdate(false, timestamp, runningSessionId)
             locationData.stopLocationUpdates()

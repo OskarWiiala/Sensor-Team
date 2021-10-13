@@ -7,12 +7,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.georgv.sporttrackerapp.TrackingSessionFragment
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.data.LocationPoint
@@ -23,7 +21,7 @@ import kotlinx.coroutines.*
 
 
 class TrackedSessionLiveData(context: Context) : LiveData<LocationPoint>(),
-    SessionViewModel.SessionIdGetter, TrackingSessionFragment.UserWeightReciever,
+    SessionViewModel.SessionIdGetter, TrackingSessionFragment.UserWeightReceiver,
     SensorEventListener {
 
     private val context = context;
