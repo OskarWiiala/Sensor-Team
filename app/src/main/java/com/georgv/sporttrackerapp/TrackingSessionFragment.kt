@@ -83,8 +83,12 @@ class TrackingSessionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setViews(view)
+        hideProgressBars()
 
-        Permissions().askForPermissions("ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION", requireActivity())
+        Permissions().askForPermissions(
+            "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
+            requireActivity()
+        )
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
 
@@ -93,7 +97,6 @@ class TrackingSessionFragment : Fragment() {
         }
         btnStop?.setOnClickListener {
             endTrackingSession()
-
         }
     }
 
@@ -120,16 +123,23 @@ class TrackingSessionFragment : Fragment() {
     private fun observeData() {
         val locationObserver = Observer<LocationPoint> { newLocation ->
             travelSpeed.text =
-                "Current Speed: " + TypeConverterUtil().msToKmhConverter(newLocation.currentSpeed)
-                    .toString() + " KM/H"
+                (getString(R.string.travel_speed) + " " + TypeConverterUtil().msToKmhConverter(newLocation.currentSpeed)
+                    .toString() + " km/h")
             setLocationMarker(newLocation)
         }
         svm.getData().observe(viewLifecycleOwner, locationObserver)
 
         val sessionObserver = Observer<Session> { session ->
-            travelDistance.text = "Distance: " + session.distance.toString()
-            travelSteps.text = "Steps: " + session.steps.toString()
-            travelCalories.text = "Calories: " + session.calories.toString()
+            travelDistance.text =
+                (getString(R.string.travel_distance) + " " + session.distance?.let {
+                    TypeConverterUtil().meterToKilometerConverter(
+                        it
+                    )
+                } + " km")
+            travelSteps.text = (getString(R.string.travel_steps) + " " + session.steps.toString())
+            travelCalories.text =
+                (getString(R.string.travel_calories) + " " + session.calories.toString())
+            hideProgressBars()
         }
         svm.session?.observe(viewLifecycleOwner, sessionObserver)
 
@@ -164,7 +174,7 @@ class TrackingSessionFragment : Fragment() {
             } else {
                 val geoPointList = mutableListOf<GeoPoint>()
                 val arraySize = svm.getLocationArray().size
-                val secondLast = svm.getLocationArray()[arraySize-2]
+                val secondLast = svm.getLocationArray()[arraySize - 2]
                 val last = svm.getLocationArray().last()
                 geoPointList.add(secondLast)
                 geoPointList.add(last)
@@ -193,7 +203,6 @@ class TrackingSessionFragment : Fragment() {
         progressSpeed = view.findViewById(R.id.progressSpeed)
         progressSteps = view.findViewById(R.id.progressSteps)
         progressCalories = view.findViewById(R.id.progressCalories)
-
 
         btnStop?.visibility = View.GONE
     }
@@ -225,11 +234,15 @@ class TrackingSessionFragment : Fragment() {
                         Log.d("confirm", "confirmed")
                         marker = Marker(mapView)
                         svm.startSession()
-                        val userWeightKg = userInput.text.toString().toDouble()
-                        svm.getData().getWeight(userWeightKg)
-                        observeData()
-                        setUIOnSessionStart()
 
+                        // Type check for user weight input
+                        val userInputIntOrNull = userInput.text.toString().toIntOrNull()
+                        if(userInput.text.isNotEmpty() && userInputIntOrNull != null) {
+                            val userWeightKg = userInput.text.toString().toDouble()
+                            svm.getData().getWeight(userWeightKg)
+                            observeData()
+                            setUIOnSessionStart()
+                        } else {Log.d("TSF","user weight is in incorrect format or is empty")}
                     }
 
                     // When user cancels popup interface
@@ -253,18 +266,11 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
-    private fun setUIOnSessionStart(){
-        progressDistance.visibility = View.VISIBLE
-        progressSpeed.visibility = View.VISIBLE
-        progressSteps.visibility = View.VISIBLE
-        progressCalories.visibility = View.VISIBLE
+    private fun setUIOnSessionStart() {
+        showProgressBars()
 
         btnStart?.visibility = View.GONE
         btnStop?.visibility = View.VISIBLE
-        progressDistance.visibility = View.GONE
-        progressSpeed.visibility = View.GONE
-        progressSteps.visibility = View.GONE
-        progressCalories.visibility = View.GONE
         mapView.overlays.clear()
     }
 
@@ -286,11 +292,11 @@ class TrackingSessionFragment : Fragment() {
             svm.stopSession()
             counter = 0
 
-            var notificationBuilder = NotificationCompat.Builder(
+            val notificationBuilder = NotificationCompat.Builder(
                 requireContext(),
                 getString(R.string.notification_channel_1)
             )
-                .setSmallIcon(R.drawable.bonuspack_bubble)
+                .setSmallIcon(R.drawable.ic_save_24)
                 .setContentTitle("Session Ended")
                 .setContentText("Your Session Is Ended And Saved To The Database!")
                 .setPriority(NotificationCompat.PRIORITY_MAX)
@@ -325,12 +331,27 @@ class TrackingSessionFragment : Fragment() {
                 description = descriptionText
             }
             // Register the channel with the system
-            val manager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val manager =
+                requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
 
-    interface UserWeightReciever{
-        fun getWeight(weight:Double)
+    private fun showProgressBars() {
+        progressDistance.visibility = View.VISIBLE
+        progressSpeed.visibility = View.VISIBLE
+        progressSteps.visibility = View.VISIBLE
+        progressCalories.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBars() {
+        progressDistance.visibility = View.GONE
+        progressSpeed.visibility = View.GONE
+        progressSteps.visibility = View.GONE
+        progressCalories.visibility = View.GONE
+    }
+
+    interface UserWeightReceiver {
+        fun getWeight(weight: Double)
     }
 }
