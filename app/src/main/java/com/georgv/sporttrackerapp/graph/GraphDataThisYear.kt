@@ -73,7 +73,7 @@ class GraphDataThisYear(context: Application) {
             cal.time = itemDate
             itemMonth = localItemDate.monthValue -1
             if (selectedVariable == "Distance") {
-                monthList[itemMonth] += item.distance.toDouble()
+                monthList[itemMonth] += TypeConverterUtil().meterToKilometerConverter(item.distance)
             }
             if (selectedVariable == "Average speed") {
                 monthList[itemMonth] += item.averageSpeed.toDouble()

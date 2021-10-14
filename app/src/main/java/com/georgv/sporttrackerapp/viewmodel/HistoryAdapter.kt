@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
@@ -19,28 +18,32 @@ import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.database.LocationPointDao
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.georgv.sporttrackerapp.database.SessionDao
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.util.*
 
-class HistoryAdapter(private val listener: OnItemClickListener, private val context: Context) : ListAdapter<Session, HistoryAdapter.ViewHolder>(
-    DiffCallback()
-) {
+class HistoryAdapter(private val listener: OnItemClickListener, private val context: Context) :
+    ListAdapter<Session, HistoryAdapter.ViewHolder>(
+        DiffCallback()
+    ) {
     private val sessionDao: SessionDao = SessionDB.get(context).sessionDao()
-    private val locationPointDao:LocationPointDao = SessionDB.get(context).locationPointDao()
+    private val locationPointDao: LocationPointDao = SessionDB.get(context).locationPointDao()
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),View.OnClickListener {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
         val textView: TextView = view.findViewById(R.id.historyItem)
+        val textView2: TextView = view.findViewById(R.id.hour_minute)
+        val textView3: TextView = view.findViewById(R.id.duration)
 
         init {
             this.itemView.setOnClickListener(this)
         }
 
         override fun onClick(p0: View?) {
-            val position:Int = adapterPosition
+            val position: Int = adapterPosition
             val item = getItem(position)
-            if(position != RecyclerView.NO_POSITION) {
+            if (position != RecyclerView.NO_POSITION) {
                 listener.onItemClick(position, item.id)
             }
         }
@@ -51,16 +54,14 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
         // Create a new view, which defines the UI of the list item
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.history_item, viewGroup, false)
-
-
         return ViewHolder(view)
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int)  {
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
 
-        val deleteButton = viewHolder.itemView.findViewById<Button>(R.id.historyItemDelete)
+        val deleteButton = viewHolder.itemView.findViewById<MaterialButton>(R.id.historyItemDelete)
         deleteButton.setOnClickListener {
             // Creates a dialog popup interface to confirm if user wants to delete session
             val builder: AlertDialog.Builder = AlertDialog.Builder(context)
@@ -91,26 +92,44 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
 
         // Uses Day/Month/Year Hour/Minute/Second as displayed text for viewHolder
         val item = getItem(position)
-        val itemDate = TypeConverterUtil().fromTimestamp(item.startTime)
+        val itemDateStart = TypeConverterUtil().fromTimestamp(item.startTime)
         val itemLocalDate =
-            itemDate!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            itemDateStart!!.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
         val itemYear = itemLocalDate.year
         val itemMonth = itemLocalDate.month.toString().take(3)
         val itemDay = itemLocalDate.dayOfMonth
 
         val cal = Calendar.getInstance()
-        cal.time = itemDate
-        val itemHour = cal[Calendar.HOUR_OF_DAY]
-        val itemMinute = cal[Calendar.MINUTE]
-        val itemSecond = cal[Calendar.SECOND]
+        cal.time = itemDateStart
+        val itemHourStart = cal[Calendar.HOUR_OF_DAY]
+        val itemMinuteStart = cal[Calendar.MINUTE]
+        val itemSecondStart = cal[Calendar.SECOND]
 
-        val itemDisplayDate = ("$itemDay $itemMonth $itemYear\n$itemHour:$itemMinute:$itemSecond")
+        val itemDateEnd = TypeConverterUtil().fromTimestamp(item.endTime)
+        val cal2 = Calendar.getInstance()
+        cal2.time = itemDateEnd!!
+        val itemHourEnd = cal2[Calendar.HOUR_OF_DAY]
+        val itemMinuteEnd = cal2[Calendar.MINUTE]
+        val itemSecondEnd = cal2[Calendar.SECOND]
+
+        val itemDisplayDate = ("$itemDay $itemMonth $itemYear")
+        val itemDisplayHourMinute = ("$itemHourStart:$itemMinuteStart")
+        val itemDisplayDuration = TypeConverterUtil().durationFromHourMinuteSecond(
+            itemHourStart,
+            itemMinuteStart,
+            itemSecondStart,
+            itemHourEnd,
+            itemMinuteEnd,
+            itemSecondEnd
+        )
         viewHolder.textView.text = itemDisplayDate
+        viewHolder.textView2.text = itemDisplayHourMinute
+        viewHolder.textView3.text = ("Duration: $itemDisplayDuration")
 
     }
 
-    interface OnItemClickListener{
-        fun onItemClick(position:Int, sessionID: Long)
+    interface OnItemClickListener {
+        fun onItemClick(position: Int, sessionID: Long)
     }
 
 }
@@ -119,6 +138,7 @@ class DiffCallback : DiffUtil.ItemCallback<Session>() {
     override fun areItemsTheSame(oldItem: Session, newItem: Session): Boolean {
         return oldItem == newItem
     }
+
     override fun areContentsTheSame(oldItem: Session, newItem: Session): Boolean {
         return oldItem == newItem
     }

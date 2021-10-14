@@ -12,7 +12,7 @@ class Permissions {
     fun askForPermissions(perms: String?, activity: FragmentActivity) {
         if(perms == "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION") {
             activity.let {
-                Log.d("perms 0", "asking for perms: ACCESS_FINE_LOCATION")
+                Log.d("perms 0", "asking for perms: ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION")
                 if (ContextCompat.checkSelfPermission(
                         it,
                         Manifest.permission.ACCESS_FINE_LOCATION
