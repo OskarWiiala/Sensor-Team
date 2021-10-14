@@ -53,8 +53,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
                     val calories = CalorieCounter().countCalories(totalDistanceTraveled, userWeight)
-
-                    if(activity.keepTracking()) {
+                    
                         db.sessionDao().update(
                             true,
                             null,
@@ -64,9 +63,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
                             calories,
                             sessionId
                         )
-                    }else{
-                        stopLocationUpdates()
-                    }
+
                 }
             }
         }

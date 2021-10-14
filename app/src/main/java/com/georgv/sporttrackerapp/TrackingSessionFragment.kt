@@ -19,6 +19,7 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -56,6 +57,8 @@ class TrackingSessionFragment : Fragment() {
     private lateinit var travelSpeed: TextView
     private lateinit var travelSteps: TextView
     private lateinit var travelCalories: TextView
+    private lateinit var constraintLayout:ConstraintLayout
+
 
     private lateinit var progressDistance: ProgressBar
     private lateinit var progressSpeed: ProgressBar
@@ -133,7 +136,6 @@ class TrackingSessionFragment : Fragment() {
         val sessionObserver = Observer<TrackedSession> { session ->
             if (session != null) {
                 setRunningView()
-                hideProgressBars()
                 travelDistance.text =
                     (getString(R.string.travel_distance) + " " + session.session?.distance?.let {
                         TypeConverterUtil().meterToKilometerConverter(it)
@@ -155,7 +157,6 @@ class TrackingSessionFragment : Fragment() {
                 }
             } else {
                 setDefaultView()
-                showProgressBars()
             }
         }
         svm.session.observe(viewLifecycleOwner, sessionObserver)
@@ -197,6 +198,7 @@ class TrackingSessionFragment : Fragment() {
     private fun setViews(view: View) {
         btnStart = view.findViewById(R.id.btnStart)
         btnStop = view.findViewById(R.id.btnStop)
+        constraintLayout = view.findViewById(R.id.startSessionLayout)
 
         travelDistance = view.findViewById(R.id.travelDistance)
         travelSpeed = view.findViewById(R.id.travelSpeed)
@@ -204,21 +206,24 @@ class TrackingSessionFragment : Fragment() {
         travelCalories = view.findViewById(R.id.travelCalories)
         mapView = view.findViewById(R.id.mapView)
 
-        progressDistance = view.findViewById(R.id.progressDistance)
-        progressSpeed = view.findViewById(R.id.progressSpeed)
-        progressSteps = view.findViewById(R.id.progressSteps)
-        progressCalories = view.findViewById(R.id.progressCalories)
+
+
+//        progressDistance = view.findViewById(R.id.progressDistance)
+//        progressSpeed = view.findViewById(R.id.progressSpeed)
+//        progressSteps = view.findViewById(R.id.progressSteps)
+//        progressCalories = view.findViewById(R.id.progressCalories)
 
     }
 
     private fun setRunningView() {
         btnStart?.visibility = View.GONE
-        btnStop?.visibility = View.VISIBLE
+        constraintLayout.visibility = View.VISIBLE
+
     }
 
     private fun setDefaultView() {
         btnStart?.visibility = View.VISIBLE
-        btnStop?.visibility = View.GONE
+        constraintLayout.visibility = View.GONE
     }
 
     private fun startTrackingSession() {
@@ -348,19 +353,19 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
-    private fun showProgressBars() {
-        progressDistance.visibility = View.VISIBLE
-        progressSpeed.visibility = View.VISIBLE
-        progressSteps.visibility = View.VISIBLE
-        progressCalories.visibility = View.VISIBLE
-    }
+//    private fun showProgressBars() {
+//        progressDistance.visibility = View.VISIBLE
+//        progressSpeed.visibility = View.VISIBLE
+//        progressSteps.visibility = View.VISIBLE
+//        progressCalories.visibility = View.VISIBLE
+//    }
 
-    private fun hideProgressBars() {
-        progressDistance.visibility = View.GONE
-        progressSpeed.visibility = View.GONE
-        progressSteps.visibility = View.GONE
-        progressCalories.visibility = View.GONE
-    }
+//    private fun hideProgressBars() {
+//        progressDistance.visibility = View.GONE
+//        progressSpeed.visibility = View.GONE
+//        progressSteps.visibility = View.GONE
+//        progressCalories.visibility = View.GONE
+//    }
 
     interface UserWeightReceiver {
         fun getWeight(weight: Double)
