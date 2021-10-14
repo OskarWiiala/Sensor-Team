@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".TrackingSessionFragment">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnStart"
-        android:layout_width="330dp"
-        android:layout_height="100dp"
-        android:layout_margin="0dp"
-        android:contentDescription="@string/content_description_session_start"
-        android:text="@string/start_tracking"
-        android:textSize="22sp"
-        app:icon="@drawable/ic_location_on_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mapViewContainer"
         android:layout_width="match_parent"
@@ -36,6 +23,19 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStart"
+        android:layout_width="330dp"
+        android:layout_height="100dp"
+        android:layout_margin="0dp"
+        android:contentDescription="@string/content_description_session_start"
+        android:text="@string/start_tracking"
+        android:textSize="22sp"
+        app:icon="@drawable/ic_location_on_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/startSessionLayout"
         android:layout_width="match_parent"
@@ -44,19 +44,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
+        <ImageButton
             android:id="@+id/btnStop"
-            style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:icon="@drawable/ic_arrow_drop_down_24"
+            android:layout_marginRight="30dp"
+            android:src="@drawable/ic_action_stop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="15dp"
+            android:background="@color/transparent_blue"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -101,6 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:contentDescription="@string/content_description_session_calories"
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
