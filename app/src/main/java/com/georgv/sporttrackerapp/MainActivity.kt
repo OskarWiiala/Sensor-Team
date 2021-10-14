@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
-    private val smv:SessionViewModel by viewModels()
-
+    private val viewModel:SessionViewModel by viewModels()
+    private val db by lazy { SessionDB.get(applicationContext) }
     private lateinit var trackedSessionLiveData: TrackedSessionLiveData
     private var userWeight:Double = 1.0
 
@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
         bottomNav.setOnItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.tracker -> {
@@ -85,7 +84,6 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
     }
 
     suspend fun createTracker(){
-        val db:SessionDB = SessionDB.get(applicationContext)
         val id = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
         trackedSessionLiveData = TrackedSessionLiveData(this,id.await(),userWeight)
         trackedSessionLiveData.startLocationUpdates()
@@ -102,9 +100,9 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
         f.getSessionID(id)
     }
 
-    override fun onPause() {
-        super.onPause()
-
+    override fun onStop() {
+        super.onStop()
+            viewModel.stopSession()
     }
 
     override fun getWeight(weight: Double) {
