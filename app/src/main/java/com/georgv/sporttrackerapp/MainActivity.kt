@@ -20,10 +20,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
+class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
     private val smv:SessionViewModel by viewModels()
 
     private lateinit var trackedSessionLiveData: TrackedSessionLiveData
+    private var userWeight:Double = 1.0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
     suspend fun createTracker(){
         val db:SessionDB = SessionDB.get(applicationContext)
         val id = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
-        trackedSessionLiveData = TrackedSessionLiveData(this,id.await())
+        trackedSessionLiveData = TrackedSessionLiveData(this,id.await(),userWeight)
         trackedSessionLiveData.startLocationUpdates()
     }
 
@@ -104,5 +105,9 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
     override fun onPause() {
         super.onPause()
 
+    }
+
+    override fun getWeight(weight: Double) {
+        userWeight = weight
     }
 }

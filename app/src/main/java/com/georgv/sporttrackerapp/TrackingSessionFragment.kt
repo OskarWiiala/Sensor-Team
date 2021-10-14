@@ -235,9 +235,11 @@ class TrackingSessionFragment : Fragment() {
                         val userInputIntOrNull = userInput.text.toString().toIntOrNull()
                         if(userInput.text.isNotEmpty() && userInputIntOrNull != null) {
                             val userWeightKg = userInput.text.toString().toDouble()
-                            svm.getWeight(userWeightKg)
 
                             val activity = requireView().context as MainActivity
+                            val delegate = activity as UserWeightReceiver
+                            delegate.getWeight(userWeightKg)
+
                             svm.startSession()
                             runBlocking {
                                 activity.createTracker()

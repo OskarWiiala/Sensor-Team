@@ -18,7 +18,7 @@ import kotlinx.coroutines.*
 import org.osmdroid.util.GeoPoint
 
 
-class SessionViewModel(application: Application) : AndroidViewModel(application), TrackingSessionFragment.UserWeightReceiver {
+class SessionViewModel(application: Application) : AndroidViewModel(application) {
 
     private var db: SessionDB = SessionDB.get(application)
     private var repo: SessionRepository = SessionRepository(application)
@@ -72,10 +72,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-
-    override fun getWeight(weight: Double) {
-        userWeightValue = weight
-    }
 
     interface SessionStateReciever{
         fun setRunning(state: Boolean):Boolean

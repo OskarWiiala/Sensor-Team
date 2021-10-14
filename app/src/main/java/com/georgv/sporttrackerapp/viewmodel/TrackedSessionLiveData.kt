@@ -22,7 +22,7 @@ import com.google.android.gms.location.LocationResult
 import kotlinx.coroutines.*
 
 
-class TrackedSessionLiveData(context: Context, sessionID:Long) : SensorEventListener, SessionViewModel.SessionStateReciever {
+class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double) : SensorEventListener, SessionViewModel.SessionStateReciever {
     private val context = context;
     private val db by lazy { SessionDB.get(context) }
     private var sessionId: Long = sessionID
@@ -49,7 +49,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long) : SensorEventList
                 GlobalScope.launch {
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
-                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, 5.0)
+                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, userWeight)
                     db.sessionDao().update(
                         true,
                         null,
