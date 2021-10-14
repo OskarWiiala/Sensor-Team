@@ -7,6 +7,7 @@ import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.georgv.sporttrackerapp.database.SessionDao
+import com.georgv.sporttrackerapp.viewmodel.TrackedSessionLiveData
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -15,17 +16,14 @@ import java.util.*
 class SessionRepository(context:Application) {
     private val sessionDao: SessionDao = SessionDB.get(context).sessionDao()
 
-    fun getTrackedSession(id:Long): TrackedSession {
-        return sessionDao.getTrackedSessionById(id)
-    }
-
-    fun getSession(id:Long): Flow<Session> {
-        return sessionDao.getSessionFlowById(id)
-    }
 
     fun getData(): LiveData<List<Session>> {
-        return sessionDao.getAll()
+        return sessionDao.getAllFinishedSessions(false)
     }
+
+//    fun getLocationData():TrackedSessionLiveData {
+//        return TrackedSessionLiveData(context)
+//    }
 
 
 //    @RequiresApi(Build.VERSION_CODES.O)

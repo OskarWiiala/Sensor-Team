@@ -5,30 +5,31 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
+import com.georgv.sporttrackerapp.TrackingSessionFragment
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
+import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
+import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import java.util.*
 import kotlinx.coroutines.*
 import org.osmdroid.util.GeoPoint
 
 
-class SessionViewModel(application: Application) : AndroidViewModel(application) {
+class SessionViewModel(application: Application) : AndroidViewModel(application), TrackingSessionFragment.UserWeightReceiver {
 
-    private var db: SessionDB = SessionDB.get(getApplication())
+    private var db: SessionDB = SessionDB.get(application)
     private var repo: SessionRepository = SessionRepository(application)
-    private var runningSessionId: Long = 0
 
     val sessions: LiveData<List<Session>>
         get() = repo.getData()
 
-    private var _session: LiveData<Session>? = null
-    val session: LiveData<Session>?
+    private var _session: LiveData<TrackedSession> = db.sessionDao().getRunningSessionAsLiveData(true)
+    val session: LiveData<TrackedSession>
         get() = _session
 
-    private var locationData = TrackedSessionLiveData(application)
-    fun getData() = locationData
 
     private var locationArray: MutableList<GeoPoint> = mutableListOf()
     fun getLocationArray(): List<GeoPoint> = locationArray
@@ -37,39 +38,46 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
         locationArray.add(location)
     }
 
+    private var userWeightValue:Double = 0.0
 
-    fun startSession() {
-        runBlocking {
-            val createSession = GlobalScope.async { storeToDatabase() }
-            runningSessionId = createSession.await()
-            locationData.getSessionId(runningSessionId, locationData)
-            _session = repo.getSession(runningSessionId).asLiveData()
-        }
-        locationData.startLocationUpdates()
-    }
 
-    suspend fun storeToDatabase(): Long {
+
+    private suspend fun storeToDatabase(): Long {
         val timestamp = TypeConverterUtil().dateToTimestamp(Date())
-        val thisSession = Session(0, timestamp, true, null, null, null, null, null)
+        val thisSession = Session(0, timestamp, true, null, 0f, 0f, 0, 0)
         val thisSessionId = db.sessionDao().insert(thisSession)
         return thisSessionId
     }
 
+   private suspend fun updateToDatabase(){
+       val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
+       val job = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
+       val id = job.await()
+       db.sessionDao().finalSessionUpdate(false, timestamp,id)
+   }
+
+
+    fun startSession() {
+        runBlocking {
+            val createSession = GlobalScope.async { storeToDatabase() }
+            createSession.await()
+            _session
+        }
+    }
 
     fun stopSession() {
         GlobalScope.launch {
-            // maybe clear locationArray?
-            val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
-            db.sessionDao().finalSessionUpdate(false, timestamp, runningSessionId)
-            locationData.stopLocationUpdates()
-            runningSessionId = 0
-            _session = null
+            updateToDatabase()
+            _session
         }
-
     }
 
 
-    interface SessionIdGetter {
-        fun getSessionId(id: Long, getter: SessionIdGetter)
+    override fun getWeight(weight: Double) {
+        userWeightValue = weight
+    }
+
+    interface SessionStateReciever{
+        fun setRunning(state: Boolean):Boolean
     }
 }
