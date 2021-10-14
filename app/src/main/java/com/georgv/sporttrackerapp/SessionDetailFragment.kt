@@ -109,7 +109,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
                     mapView.invalidate()
 
 
-                    for ((counter, item) in session.locationPoints!!.withIndex()) {
+                    for ((counter, item) in session.locationPoints.withIndex()) {
                         // handles drawing a line between GeoPoints in map. Also assigns a color to the line based on speed.
                         val line = Polyline()
                         val pPaint = Paint()

@@ -6,6 +6,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HistoryFragment">
 
+    <TextView
+        android:id="@+id/history_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="nothing here yet"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sessionList"
         android:layout_width="match_parent"

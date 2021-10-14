@@ -11,11 +11,21 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.R.attr.tag
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
+import com.georgv.sporttrackerapp.database.SessionDB
+import com.georgv.sporttrackerapp.database.SessionDao
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
+import com.georgv.sporttrackerapp.viewmodel.TrackedSessionLiveData
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
+class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
     private val smv:SessionViewModel by viewModels()
+
+    private lateinit var trackedSessionLiveData: TrackedSessionLiveData
+    private var userWeight:Double = 1.0
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +76,7 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
     }
 
     private fun navigateToDetailView():SessionDetailFragment{
-        val fragment:SessionDetailFragment = SessionDetailFragment()
+        val fragment = SessionDetailFragment()
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace<SessionDetailFragment>(R.id.fragmentContainer)
         .replace(R.id.fragmentContainer,fragment).commit()
@@ -74,13 +84,30 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId {
 
     }
 
+    suspend fun createTracker(){
+        val db:SessionDB = SessionDB.get(applicationContext)
+        val id = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
+        trackedSessionLiveData = TrackedSessionLiveData(this,id.await(),userWeight)
+        trackedSessionLiveData.startLocationUpdates()
+    }
+
+    fun stopTracker(){
+        if(trackedSessionLiveData != null){
+            trackedSessionLiveData.stopLocationUpdates()
+        }
+    }
+
     override fun sendId(id:Long) {
         val f = navigateToDetailView()
         f.getSessionID(id)
     }
 
-    override fun onStop() {
-        super.onStop()
-        smv.stopSession()
+    override fun onPause() {
+        super.onPause()
+
+    }
+
+    override fun getWeight(weight: Double) {
+        userWeight = weight
     }
 }

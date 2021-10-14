@@ -7,5 +7,5 @@ class TrackedSession {
     @Embedded
     var session:Session? = null
     @Relation(parentColumn = "id",entityColumn = "sessionID")
-    var locationPoints: List<LocationPoint>? = null
+    var locationPoints: List<LocationPoint> = listOf<LocationPoint>()
 }
