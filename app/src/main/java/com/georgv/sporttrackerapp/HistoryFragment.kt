@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.georgv.sporttrackerapp.viewmodel.HistoryAdapter
-
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 
 class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnItemClickListener {

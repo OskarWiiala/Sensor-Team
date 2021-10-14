@@ -1,37 +1,25 @@
 package com.georgv.sporttrackerapp
 
-import android.R.attr
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.replace
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import android.R.attr.tag
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
 import com.georgv.sporttrackerapp.database.SessionDB
-import com.georgv.sporttrackerapp.database.SessionDao
-import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.georgv.sporttrackerapp.viewmodel.TrackedSessionLiveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-
 
 class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
-    private val smv:SessionViewModel by viewModels()
-
+    //private val viewModel:SessionViewModel by viewModels()
+    private val db by lazy { SessionDB.get(applicationContext) }
     private lateinit var trackedSessionLiveData: TrackedSessionLiveData
     private var userWeight:Double = 1.0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
         bottomNav.setOnItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.tracker -> {
@@ -81,30 +69,30 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
         transaction.replace<SessionDetailFragment>(R.id.fragmentContainer)
         .replace(R.id.fragmentContainer,fragment).commit()
         return fragment
-
     }
 
     suspend fun createTracker(){
-        val db:SessionDB = SessionDB.get(applicationContext)
-        val id = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
-        trackedSessionLiveData = TrackedSessionLiveData(this,id.await(),userWeight)
-        trackedSessionLiveData.startLocationUpdates()
+        val job = GlobalScope.async { db.sessionDao().getRunningSession(true) }
+        val session = job.await()
+        if(session != null) {
+            trackedSessionLiveData = TrackedSessionLiveData(this, session.id, userWeight)
+            trackedSessionLiveData.startLocationUpdates()
+        }
     }
 
     fun stopTracker(){
-        if(trackedSessionLiveData != null){
+        if(::trackedSessionLiveData.isInitialized){
             trackedSessionLiveData.stopLocationUpdates()
         }
+    }
+
+    fun keepTracking():Boolean{
+        return !::trackedSessionLiveData.isInitialized
     }
 
     override fun sendId(id:Long) {
         val f = navigateToDetailView()
         f.getSessionID(id)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
     }
 
     override fun getWeight(weight: Double) {
