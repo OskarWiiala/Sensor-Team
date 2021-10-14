@@ -16,4 +16,5 @@
     <color name="card_white">#FAFAFA</color>
     <color name="trash_can">#919191</color>
     <color name="saved_data">#4E5C91</color>
+    <color name="transparent_blue">#D3FFFFFF</color>
 </resources>
