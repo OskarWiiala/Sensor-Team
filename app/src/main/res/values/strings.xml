@@ -28,7 +28,7 @@
 
     <!--Strings for SessionDetailFragment-->
     <string name="history_detail_distance">Distance:</string>
-    <string name="history_detail_average_speed">Average speed:</string>
+    <string name="history_detail_average_speed">Avg speed:</string>
     <string name="history_detail_steps">Steps:</string>
     <string name="history_detail_calories">Calories:</string>
 
@@ -55,4 +55,5 @@
     <string name="content_description_history_detail_steps">Total steps taken this session</string>
     <string name="content_description_history_detail_calories">Total calories burnt this session</string>
     <string name="content_description_history_detail_duration">Duration of this session</string>
+    <string name="content_description_history_detail_date">Date of this session</string>
 </resources>

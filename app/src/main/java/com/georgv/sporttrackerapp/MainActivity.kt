@@ -1,31 +1,20 @@
 package com.georgv.sporttrackerapp
 
-import android.R.attr
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.replace
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import android.R.attr.tag
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModel
 import com.georgv.sporttrackerapp.database.SessionDB
-import com.georgv.sporttrackerapp.database.SessionDao
-import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.georgv.sporttrackerapp.viewmodel.TrackedSessionLiveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-
 
 class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
     //private val viewModel:SessionViewModel by viewModels()
     private val db by lazy { SessionDB.get(applicationContext) }
     private lateinit var trackedSessionLiveData: TrackedSessionLiveData
     private var userWeight:Double = 1.0
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +69,6 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
         transaction.replace<SessionDetailFragment>(R.id.fragmentContainer)
         .replace(R.id.fragmentContainer,fragment).commit()
         return fragment
-
     }
 
     suspend fun createTracker(){
@@ -99,22 +87,13 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
     }
 
     fun keepTracking():Boolean{
-        if(::trackedSessionLiveData.isInitialized){
-            return false
-        }
-        else {
-            return true
-        }
+        return !::trackedSessionLiveData.isInitialized
     }
-
-
-
 
     override fun sendId(id:Long) {
         val f = navigateToDetailView()
         f.getSessionID(id)
     }
-
 
     override fun getWeight(weight: Double) {
         userWeight = weight

@@ -90,7 +90,7 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
 
         }
 
-        // Uses Day/Month/Year Hour/Minute/Second as displayed text for viewHolder
+        // Uses Day/Month/Year Hour/Minute as displayed text for viewHolder
         val item = getItem(position)
         val itemDateStart = TypeConverterUtil().fromTimestamp(item.startTime)
         val itemLocalDate =

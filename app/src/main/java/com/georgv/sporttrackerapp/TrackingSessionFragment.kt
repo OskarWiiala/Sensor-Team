@@ -1,9 +1,7 @@
 package com.georgv.sporttrackerapp
 
-import SessionRepository
 import android.Manifest
 import android.app.AlertDialog
-import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -24,7 +22,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
@@ -32,13 +29,9 @@ import com.georgv.sporttrackerapp.customHandlers.Permissions
 import com.georgv.sporttrackerapp.customHandlers.PolylineColorUtil
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.LocationPoint
-import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
 import com.google.android.material.button.MaterialButton
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -111,7 +104,6 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
-
     private fun setLocationMarker(locationPoint: LocationPoint) {
         val geoPoint = GeoPoint(locationPoint.latitude, locationPoint.longtitude)
         mapView.controller.setCenter(geoPoint)
@@ -131,11 +123,11 @@ class TrackingSessionFragment : Fragment() {
         mapView.invalidate()
     }
 
-
     private fun observeData(view: View) {
         Log.d("observeData","we got here")
         val sessionObserver = Observer<TrackedSession> { session ->
             if (session != null) {
+                Log.d("observeData", "not null sess")
                 setRunningView()
                 travelDistance.text =
                     (getString(R.string.travel_distance) + " " + session.session?.distance?.let {
@@ -146,17 +138,17 @@ class TrackingSessionFragment : Fragment() {
                 travelCalories.text =
                     (getString(R.string.travel_calories) + " " + session.session?.calories.toString())
 
-
                 if (session.locationPoints.isNotEmpty()) {
                     travelSpeed.text =
                         (getString(R.string.travel_speed) + " " + TypeConverterUtil().msToKmhConverter(
                             session.locationPoints.last().currentSpeed
-                        ))
+                        ) + " km/h")
 
                     val list = TypeConverterUtil().locationPointsToGeoPoints(session.locationPoints)
                     drawLine(list, session)
                 }
             } else {
+                Log.d("observeData", "null sess")
                 setDefaultView()
             }
         }
