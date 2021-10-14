@@ -10,7 +10,11 @@
         android:id="@+id/history_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="nothing here yet"/>
+        android:text="@string/history_placeholder_text"
+        android:textSize="22sp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="32dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sessionList"
