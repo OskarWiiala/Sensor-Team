@@ -77,7 +77,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
     init {
         this.switchOnStepCounter(true)
     }
-    
+
 
 
     private fun setLocationPoint(locationPoint: Location): LocationPoint {
