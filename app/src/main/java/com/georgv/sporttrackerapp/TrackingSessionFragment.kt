@@ -82,7 +82,8 @@ class TrackingSessionFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Configuration.getInstance().load(activityContext,
+        Configuration.getInstance().load(
+            activityContext,
             PreferenceManager.getDefaultSharedPreferences(activityContext)
         )
         super.onViewCreated(view, savedInstanceState)
@@ -93,19 +94,13 @@ class TrackingSessionFragment : Fragment() {
         marker = Marker(mapView)
         observeData(view)
 
-        hideProgressBars()
-
         Permissions().askForPermissions(
             "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
             requireActivity()
         )
 
-
-
         btnStart?.setOnClickListener {
-
-
-                startTrackingSession()
+            startTrackingSession()
 
         }
         btnStop?.setOnClickListener {
@@ -134,48 +129,50 @@ class TrackingSessionFragment : Fragment() {
     }
 
 
-    private fun observeData(view: View){
+    private fun observeData(view: View) {
         val sessionObserver = Observer<TrackedSession> { session ->
-            if(session != null) {
-
+            if (session != null) {
                 setRunningView(view)
-                travelDistance.text = (getString(R.string.travel_distance) + " " + session.session?.distance?.let { TypeConverterUtil().meterToKilometerConverter(it) } + " km")
-
-
+                hideProgressBars()
+                travelDistance.text =
+                    (getString(R.string.travel_distance) + " " + session.session?.distance?.let {
+                        TypeConverterUtil().meterToKilometerConverter(it)
+                    } + " km")
                 travelSteps.text =
                     (getString(R.string.travel_steps) + " " + session.session?.steps.toString())
                 travelCalories.text =
                     (getString(R.string.travel_calories) + " " + session.session?.calories.toString())
-                hideProgressBars()
 
-                if(!session.locationPoints.isEmpty()) {
+
+                if (!session.locationPoints.isEmpty()) {
                     travelSpeed.text =
                         (getString(R.string.travel_speed) + TypeConverterUtil().msToKmhConverter(
                             session.locationPoints.last().currentSpeed
                         ))
 
                     val list = TypeConverterUtil().locationPointsToGeoPoints(session.locationPoints)
-                    val line = Polyline()
-                    val pPaint = Paint()
-                    pPaint.strokeWidth = 10F
-
-                    val pColorMap = PolylineColorUtil(
-                        requireContext(),
-                        session.locationPoints.last().currentSpeed
-                    )
-                    line.setPoints(list)
-                    line.outlinePaintLists.add(PolychromaticPaintList(pPaint, pColorMap, false))
-                    mapView.overlays.add(line)
-
-                    setLocationMarker(session.locationPoints.last())
+                    drawLine(list, session)
                 }
-            }
-            else{
+            } else {
                 setDefaultView(view)
+                showProgressBars()
             }
         }
         svm.session.observe(viewLifecycleOwner, sessionObserver)
+    }
 
+    private fun drawLine(list: List<GeoPoint>, session: TrackedSession) {
+        val line = Polyline()
+        val pPaint = Paint()
+        pPaint.strokeWidth = 10F
+        val pColorMap = PolylineColorUtil(
+            requireContext(),
+            session.locationPoints.last().currentSpeed
+        )
+        line.setPoints(list)
+        line.outlinePaintLists.add(PolychromaticPaintList(pPaint, pColorMap, false))
+        mapView.overlays.add(line)
+        setLocationMarker(session.locationPoints.last())
     }
 
     private fun setViews(view: View) {
@@ -195,12 +192,12 @@ class TrackingSessionFragment : Fragment() {
 
     }
 
-    private fun setRunningView(view: View){
+    private fun setRunningView(view: View) {
         btnStart?.visibility = View.GONE
         btnStop?.visibility = View.VISIBLE
     }
 
-    private fun setDefaultView(view: View){
+    private fun setDefaultView(view: View) {
         btnStart?.visibility = View.VISIBLE
         btnStop?.visibility = View.GONE
     }
@@ -233,7 +230,7 @@ class TrackingSessionFragment : Fragment() {
 
                         // Type check for user weight input
                         val userInputIntOrNull = userInput.text.toString().toIntOrNull()
-                        if(userInput.text.isNotEmpty() && userInputIntOrNull != null) {
+                        if (userInput.text.isNotEmpty() && userInputIntOrNull != null) {
                             val userWeightKg = userInput.text.toString().toDouble()
 
                             val activity = requireView().context as MainActivity
@@ -245,8 +242,9 @@ class TrackingSessionFragment : Fragment() {
                                 activity.createTracker()
                             }
 
-                            setUIOnSessionStart()
-                        } else {Log.d("TSF","user weight is in incorrect format or is empty")}
+                        } else {
+                            Log.d("TSF", "user weight is in incorrect format or is empty")
+                        }
                     }
 
                     // When user cancels popup interface
@@ -270,12 +268,6 @@ class TrackingSessionFragment : Fragment() {
         }
     }
 
-    private fun setUIOnSessionStart() {
-        showProgressBars()
-        btnStart?.visibility = View.GONE
-        btnStop?.visibility = View.VISIBLE
-        mapView.overlays.clear()
-    }
 
     private fun endTrackingSession() {
         // Creates a dialog popup interface to confirm if user wants to end sports tracking session
