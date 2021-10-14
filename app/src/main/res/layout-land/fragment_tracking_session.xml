@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TrackingSessionFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="600dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/mapViewContainer"
+                android:layout_width="300dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:contentDescription="@string/content_description_session_map"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <ProgressBar
+                android:id="@+id/progressDistance"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                app:layout_constraintStart_toEndOf="@id/travelDistance"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/progressSpeed"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                app:layout_constraintStart_toEndOf="@id/travelSpeed"
+                app:layout_constraintTop_toBottomOf="@id/travelDistance" />
+
+            <ProgressBar
+                android:id="@+id/progressSteps"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                app:layout_constraintStart_toEndOf="@id/travelSteps"
+                app:layout_constraintTop_toBottomOf="@id/travelSpeed" />
+
+            <ProgressBar
+                android:id="@+id/progressCalories"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="8dp"
+                android:indeterminate="true"
+                app:layout_constraintStart_toEndOf="@id/travelCalories"
+                app:layout_constraintTop_toBottomOf="@id/travelSteps" />
+
+
+            <TextView
+                android:id="@+id/travelDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_distance"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_distance"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/travelSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_speed"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_speed"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toBottomOf="@id/travelDistance" />
+
+            <TextView
+                android:id="@+id/travelSteps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_steps"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_steps"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toBottomOf="@id/travelSpeed" />
+
+            <TextView
+                android:id="@+id/travelCalories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_calories"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_calories"
+                android:textSize="24sp"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toBottomOf="@id/travelSteps" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStart"
+                android:layout_width="330dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="32dp"
+                android:contentDescription="@string/content_description_session_start"
+                android:text="@string/start_tracking"
+                android:textSize="22sp"
+                app:icon="@drawable/ic_location_on_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toBottomOf="@id/travelCalories" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnStop"
+                android:layout_width="330dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="32dp"
+                android:contentDescription="@string/content_description_session_stop"
+                android:text="@string/stop_tracking"
+                android:textSize="22sp"
+                app:icon="@drawable/ic_baseline_location_off_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/mapViewContainer"
+                app:layout_constraintTop_toBottomOf="@+id/travelCalories" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>
