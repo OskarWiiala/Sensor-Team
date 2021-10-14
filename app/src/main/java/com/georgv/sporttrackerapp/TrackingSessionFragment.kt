@@ -227,7 +227,7 @@ class TrackingSessionFragment : Fragment() {
                     ) { _, _ ->
                         Log.d("confirm", "confirmed")
                         marker = Marker(mapView)
-
+                        mapView.overlays.clear()
                         // Type check for user weight input
                         val userInputIntOrNull = userInput.text.toString().toIntOrNull()
                         if (userInput.text.isNotEmpty() && userInputIntOrNull != null) {
