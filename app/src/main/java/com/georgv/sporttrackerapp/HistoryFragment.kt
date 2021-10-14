@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.viewmodel.HistoryAdapter
 
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
@@ -23,22 +22,22 @@ class HistoryFragment : Fragment(R.layout.fragment_history), HistoryAdapter.OnIt
         val recyclerView: RecyclerView = view.findViewById(R.id.sessionList)
         recyclerView.layoutManager = LinearLayoutManager(this.context)
         recyclerView.adapter = this.context?.let { HistoryAdapter(this, it) }
+        val adapter = recyclerView.adapter
 
         cmp.sessions.observe(viewLifecycleOwner) {
-            (recyclerView.adapter as HistoryAdapter).submitList(it)
-        }
-
-        Log.d("HistoryFragment"," onViewCreated")
-        if(recyclerView.adapter?.itemCount == 0) {
-            historyPlaceholderTextView.visibility = View.VISIBLE
-        } else {
-            historyPlaceholderTextView.visibility = View.GONE
+            Log.d("HistoryFragment"," onViewCreated")
+            (adapter as HistoryAdapter).submitList(it)
+            if(it.isEmpty()) {
+                historyPlaceholderTextView.visibility = View.VISIBLE
+            } else {
+                historyPlaceholderTextView.visibility = View.GONE
+            }
         }
     }
 
-    override fun onItemClick(position: Int, sessionId: Long) {
+    override fun onItemClick(position: Int, sessionID: Long) {
         val activity = requireView().context as MainActivity
-        activity.sendId(sessionId)
+        activity.sendId(sessionID)
     }
 
     interface SendId{

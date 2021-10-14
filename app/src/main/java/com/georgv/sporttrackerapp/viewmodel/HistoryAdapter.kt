@@ -113,7 +113,7 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
         val itemSecondEnd = cal2[Calendar.SECOND]
 
         val itemDisplayDate = ("$itemDay $itemMonth $itemYear")
-        val itemDisplayHourMinute = ("$itemHourStart:$itemMinuteStart")
+        val itemDisplayHourMinute = TypeConverterUtil().hourMinuteToCorrectFormat(itemHourEnd, itemMinuteEnd)
         val itemDisplayDuration = TypeConverterUtil().durationFromHourMinuteSecond(
             itemHourStart,
             itemMinuteStart,
@@ -125,13 +125,11 @@ class HistoryAdapter(private val listener: OnItemClickListener, private val cont
         viewHolder.textView.text = itemDisplayDate
         viewHolder.textView2.text = itemDisplayHourMinute
         viewHolder.textView3.text = ("Duration: $itemDisplayDuration")
-
     }
 
     interface OnItemClickListener {
         fun onItemClick(position: Int, sessionID: Long)
     }
-
 }
 
 class DiffCallback : DiffUtil.ItemCallback<Session>() {

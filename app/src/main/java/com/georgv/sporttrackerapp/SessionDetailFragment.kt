@@ -22,6 +22,8 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.advancedpolyline.PolychromaticPaintList
+import java.time.ZoneId
+import java.util.*
 
 class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     private lateinit var mapView: MapView
@@ -29,6 +31,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     private lateinit var averageSpeedView: TextView
     private lateinit var stepsView: TextView
     private lateinit var caloriesView: TextView
+    private lateinit var durationView: TextView
     private var activityContext: Context? = null
 
     private lateinit var session: TrackedSession
@@ -48,6 +51,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
         averageSpeedView = view.findViewById(R.id.historyDetailSpeed)
         stepsView = view.findViewById(R.id.historyDetailSteps)
         caloriesView = view.findViewById(R.id.historyDetailCalories)
+        durationView = view.findViewById(R.id.historyDetailDuration)
 
         marker = Marker(mapView)
 
@@ -58,38 +62,64 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
         lifecycleScope.launch(Dispatchers.Main) {
             fetchFromDatabase()
         }
-
     }
 
+    // Fetches items from correct session by session id from the database and assigns the values to the corresponding UI elements
     private fun fetchFromDatabase() {
         lifecycleScope.launch(Dispatchers.IO) {
             val sessionListDao: SessionDao = SessionDB.get(requireContext()).sessionDao()
             session = sessionListDao.getTrackedSessionById(_sessionID)
             val locationGeoPoints = mutableListOf<GeoPoint>()
-            for (item in session.locationPoints!!) {
+            for (item in session.locationPoints) {
                 locationGeoPoints.add(GeoPoint(item.latitude, item.longtitude))
             }
 
             lifecycleScope.launch(Dispatchers.Main) {
                 if (locationGeoPoints.isNotEmpty()) {
                     val lastGeoPoint = locationGeoPoints.last()
+                    val item = session.session
                     distanceView.text =
-                        (getString(R.string.history_detail_distance) + " " + session.session?.distance?.let {
+                        (getString(R.string.history_detail_distance) + " " + item?.distance?.let {
                             TypeConverterUtil().meterToKilometerConverter(
                                 it
                             )
                         } + " km")
                     averageSpeedView.text =
-                        (getString(R.string.history_detail_average_speed) + " " + session.session?.averageSpeed?.let {
+                        (getString(R.string.history_detail_average_speed) + " " + item?.averageSpeed?.let {
                             TypeConverterUtil().msToKmhConverter(
                                 it
                             )
                         } + " km/h")
 
                     stepsView.text =
-                        (getString(R.string.history_detail_steps) + " " + session.session?.steps.toString())
+                        (getString(R.string.history_detail_steps) + " " + item?.steps.toString())
                     caloriesView.text =
-                        (getString(R.string.history_detail_calories) + " " + session.session?.calories.toString())
+                        (getString(R.string.history_detail_calories) + " " + item?.calories.toString())
+
+                    val itemDateStart = TypeConverterUtil().fromTimestamp(item?.startTime)
+
+                    val cal = Calendar.getInstance()
+                    cal.time = itemDateStart!!
+                    val itemHourStart = cal[Calendar.HOUR_OF_DAY]
+                    val itemMinuteStart = cal[Calendar.MINUTE]
+                    val itemSecondStart = cal[Calendar.SECOND]
+
+                    val itemDateEnd = TypeConverterUtil().fromTimestamp(item?.endTime)
+                    val cal2 = Calendar.getInstance()
+                    cal2.time = itemDateEnd!!
+                    val itemHourEnd = cal2[Calendar.HOUR_OF_DAY]
+                    val itemMinuteEnd = cal2[Calendar.MINUTE]
+                    val itemSecondEnd = cal2[Calendar.SECOND]
+
+                    val itemDisplayDuration = TypeConverterUtil().durationFromHourMinuteSecond(
+                        itemHourStart,
+                        itemMinuteStart,
+                        itemSecondStart,
+                        itemHourEnd,
+                        itemMinuteEnd,
+                        itemSecondEnd
+                    )
+                    durationView.text = (itemDisplayDuration)
 
 
                     mapView.controller.setCenter(lastGeoPoint)
@@ -100,6 +130,8 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
                             R.drawable.ic_location_on_24
                         )
                     }
+
+                    // sets up anchor, controller and marker for the map
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     val mapController = mapView.controller
                     mapController.setZoom(18.0)
@@ -107,7 +139,6 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
                     marker.closeInfoWindow()
                     mapView.overlays.add(marker)
                     mapView.invalidate()
-
 
                     for ((counter, item) in session.locationPoints.withIndex()) {
                         // handles drawing a line between GeoPoints in map. Also assigns a color to the line based on speed.
@@ -135,7 +166,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
                         mapView.overlays.add(line)
                     }
                 } else {
-                    Log.d("SDF","locationGeoPoints array is empty")
+                    Log.d("SDF", "locationGeoPoints array is empty")
                 }
             }
         }

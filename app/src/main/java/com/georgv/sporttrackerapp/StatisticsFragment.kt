@@ -164,6 +164,7 @@ class StatisticsFragment : Fragment() {
                 val series = gD.getGraphDataPointsOfToday(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
+                series.setAnimated(true)
                 graph?.gridLabelRenderer?.numHorizontalLabels = 12
                 graph?.gridLabelRenderer?.horizontalAxisTitle = "hour of day"
                 if (selectedVariable == "Average speed") {
@@ -184,6 +185,7 @@ class StatisticsFragment : Fragment() {
                 val series = gD.getGraphDataPointsOfThisWeek(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
+                series.setAnimated(true)
                 graph?.gridLabelRenderer?.numHorizontalLabels = 7
                 graph?.gridLabelRenderer?.horizontalAxisTitle = "day of week"
                 if (selectedVariable == "Average speed") {
@@ -204,6 +206,7 @@ class StatisticsFragment : Fragment() {
                 val series = gD.getGraphDataPointsOfThisMonth(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
+                series.setAnimated(true)
                 graph?.gridLabelRenderer?.numHorizontalLabels = 16
                 graph?.gridLabelRenderer?.horizontalAxisTitle = "day of month"
                 if (selectedVariable == "Average speed") {
@@ -224,6 +227,7 @@ class StatisticsFragment : Fragment() {
                 val series = gD.getGraphDataPointsOfThisYear(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
+                series.setAnimated(true)
                 graph?.gridLabelRenderer?.numHorizontalLabels = 12
                 graph?.gridLabelRenderer?.horizontalAxisTitle = "month of year"
                 if (selectedVariable == "Average speed") {
