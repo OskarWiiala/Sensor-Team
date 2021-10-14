@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionFragment.UserWeightReceiver {
-    private val viewModel:SessionViewModel by viewModels()
+    //private val viewModel:SessionViewModel by viewModels()
     private val db by lazy { SessionDB.get(applicationContext) }
     private lateinit var trackedSessionLiveData: TrackedSessionLiveData
     private var userWeight:Double = 1.0
@@ -84,26 +84,37 @@ class MainActivity : AppCompatActivity(),HistoryFragment.SendId,TrackingSessionF
     }
 
     suspend fun createTracker(){
-        val id = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
-        trackedSessionLiveData = TrackedSessionLiveData(this,id.await(),userWeight)
-        trackedSessionLiveData.startLocationUpdates()
+        val job = GlobalScope.async { db.sessionDao().getRunningSession(true) }
+        val session = job.await()
+        if(session != null) {
+            trackedSessionLiveData = TrackedSessionLiveData(this, session.id, userWeight)
+            trackedSessionLiveData.startLocationUpdates()
+        }
     }
 
     fun stopTracker(){
-        if(trackedSessionLiveData != null){
+        if(::trackedSessionLiveData.isInitialized){
             trackedSessionLiveData.stopLocationUpdates()
         }
     }
+
+    fun keepTracking():Boolean{
+        if(::trackedSessionLiveData.isInitialized){
+            return false
+        }
+        else {
+            return true
+        }
+    }
+
+
+
 
     override fun sendId(id:Long) {
         val f = navigateToDetailView()
         f.getSessionID(id)
     }
 
-    override fun onStop() {
-        super.onStop()
-            viewModel.stopSession()
-    }
 
     override fun getWeight(weight: Double) {
         userWeight = weight

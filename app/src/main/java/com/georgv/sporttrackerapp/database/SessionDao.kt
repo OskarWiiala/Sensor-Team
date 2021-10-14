@@ -18,7 +18,7 @@ interface SessionDao {
     fun getRunningSessionAsLiveData(bool:Boolean):LiveData<TrackedSession>
 
     @Query("SELECT * FROM session WHERE isRunning = :bool")
-    fun getRunningSession(bool:Boolean):Session
+    fun getRunningSession(bool:Boolean):Session?
 
     @Query("SELECT * FROM session WHERE id = :id")
     fun getSessionFlowById(id:Long): Flow<Session>

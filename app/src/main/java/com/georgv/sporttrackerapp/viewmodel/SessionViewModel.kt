@@ -51,9 +51,11 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
 
    private suspend fun updateToDatabase(){
        val timestamp: Long = TypeConverterUtil().dateToTimestamp(Date())
-       val job = GlobalScope.async { db.sessionDao().getRunningSession(true).id }
+       val job = GlobalScope.async { db.sessionDao().getRunningSession(true)?.id }
        val id = job.await()
-       db.sessionDao().finalSessionUpdate(false, timestamp,id)
+       if(id !=null) {
+           db.sessionDao().finalSessionUpdate(false, timestamp, id)
+       }
    }
 
 
