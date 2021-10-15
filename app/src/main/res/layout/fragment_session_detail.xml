@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sessionDetail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SessionDetailFragment">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapView2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginTop="4dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="SpeakableTextPresentCheck">
+
+                </org.osmdroid.views.MapView>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/textBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@color/transparent_blue"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <TextView
+                        android:id="@+id/historyDetailDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/content_description_history_detail_date"
+                        android:paddingTop="16dp"
+                        android:paddingStart="32dp"
+                        android:paddingEnd="32dp"
+                        android:textSize="18sp"
+                        android:textColor="@color/black"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toTopOf="@+id/historyDetailDistance"/>
+
+                    <TextView
+                        android:id="@+id/historyDetailDistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="@string/content_description_history_detail_distance"
+                        android:paddingStart="32dp"
+                        android:paddingEnd="32dp"
+                        android:text="@string/history_detail_distance"
+                        android:textSize="24sp"
+                        android:textColor="@color/black"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/historyDetailSpeed" />
+
+                    <TextView
+                        android:id="@+id/historyDetailSpeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="@string/content_description_history_detail_average_speed"
+                        android:paddingStart="32dp"
+                        android:paddingEnd="32dp"
+                        android:text="@string/history_detail_average_speed"
+                        android:textSize="24sp"
+                        android:textColor="@color/black"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/historyDetailSteps" />
+
+                    <TextView
+                        android:id="@+id/historyDetailSteps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="@string/content_description_history_detail_steps"
+                        android:paddingStart="32dp"
+                        android:paddingEnd="32dp"
+                        android:text="@string/history_detail_steps"
+                        android:textSize="24sp"
+                        android:textColor="@color/black"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/historyDetailCalories" />
+
+                    <TextView
+                        android:id="@+id/historyDetailCalories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="@string/content_description_history_detail_calories"
+                        android:paddingStart="32dp"
+                        android:paddingEnd="32dp"
+                        android:text="@string/history_detail_calories"
+                        android:textSize="24sp"
+                        android:textColor="@color/black"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintBottom_toTopOf="@id/historyDetailDuration" />
+
+                    <TextView
+                        android:id="@+id/historyDetailDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:contentDescription="@string/content_description_history_detail_duration"
+                        android:textSize="32sp"
+                        android:textColor="@color/teal_700"
+                        app:layout_constraintBottom_toBottomOf="@id/textBox"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

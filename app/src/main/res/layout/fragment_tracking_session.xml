@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00FFFFFF"
+    tools:context=".TrackingSessionFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mapViewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:contentDescription="@string/content_description_session_map"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStart"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/content_description_session_start"
+        android:text="@string/start_tracking"
+        android:textSize="22sp"
+        app:icon="@drawable/ic_location_on_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/startSessionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="15dp"
+            android:background="@color/transparent_blue"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/travelDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_distance"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_distance"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/travelSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_speed"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_speed"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/travelSteps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:contentDescription="@string/content_description_session_steps"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_steps"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/travelCalories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/content_description_session_calories"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:text="@string/travel_calories"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="90dp"
+            android:layout_height="120dp"
+            android:layout_marginEnd="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/linearLayout"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/timerText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <ImageButton
+                android:id="@+id/btnStop"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:background="@null"
+                android:foregroundGravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_stop_svgrepo_com"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                app:indicatorColor="@color/purple_500_transparent"
+                app:indicatorInset="3dp"
+                app:indicatorSize="80dp" />
+
+        </FrameLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
