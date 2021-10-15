@@ -28,7 +28,9 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="SpeakableTextPresentCheck" />
+                    tools:ignore="SpeakableTextPresentCheck">
+
+                </org.osmdroid.views.MapView>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/textBox"

@@ -6,48 +6,44 @@
     android:layout_height="match_parent"
     tools:context=".StatisticsFragment">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.jjoe64.graphview.GraphView
             android:id="@+id/graphView"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_margin="16dp"
-            android:padding="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/spinnerByVariable"
-            android:layout_width="match_parent"
-            android:layout_height="53dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/spinner_bg"
-            android:spinnerMode="dropdown"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/graphView" />
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="5"/>
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinnerByTime"
             android:layout_width="match_parent"
-            android:layout_height="53dp"
+            android:layout_height="80dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/spinner_bg"
             android:spinnerMode="dropdown"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/spinnerByVariable" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+            android:layout_weight="1"/>
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinnerByVariable"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/spinner_bg"
+            android:spinnerMode="dropdown"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,12 +15,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.georgv.sporttrackerapp.customHandlers.GraphData
 import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.GridLabelRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.collections.ArrayList
 
 class StatisticsFragment : Fragment() {
-    private var graph: GraphView? = null
+    //private var graph: GraphView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,6 +33,8 @@ class StatisticsFragment : Fragment() {
 
     private var selectedVariable = "Distance"
     private var selectedTime = "Today"
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -150,96 +153,112 @@ class StatisticsFragment : Fragment() {
         selectedVariable: String = "Distance",
         selectedTime: String = "Today"
     ) {
-        graph = view.findViewById(R.id.graphView)
-        graph?.title = ("$selectedVariable ${selectedTime.lowercase()}")
-        graph?.titleTextSize = 60F
-        graph?.gridLabelRenderer?.padding = 16
-        graph?.gridLabelRenderer?.setHorizontalLabelsAngle(45)
-        graph?.gridLabelRenderer?.padding = 100
+
+        var graph:GraphView = view.findViewById(R.id.graphView)
+
+
+        graph.title = ("$selectedVariable ${selectedTime.lowercase()}")
+        graph.titleTextSize = 60F
+        graph.gridLabelRenderer.padding = 50
+        graph.gridLabelRenderer.setHorizontalLabelsAngle(45)
+
 
         if (selectedTime == "Today") {
             lifecycleScope.launch(Dispatchers.Main) {
-                graph?.removeAllSeries()
-                graph?.gridLabelRenderer?.verticalAxisTitle = ""
+                graph.removeAllSeries()
+                graph.gridLabelRenderer?.verticalAxisTitle = ""
                 val gD: GraphData by viewModels()
                 val series = gD.getGraphDataPointsOfToday(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
                 series.setAnimated(true)
-                graph?.gridLabelRenderer?.numHorizontalLabels = 12
-                graph?.gridLabelRenderer?.horizontalAxisTitle = "hour of day"
+                graph.gridLabelRenderer.numHorizontalLabels = 12
+                graph.gridLabelRenderer.horizontalAxisTitle = "hour of day"
                 if (selectedVariable == "Average speed") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "km/h"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "km/h"
                 }
                 if (selectedVariable == "Distance") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "kilometers"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "kilometers"
                 }
-                graph?.addSeries(series)
+                graph.addSeries(series)
+                graph.getViewport().setMaxX(25.0)
+                graph.getViewport().setXAxisBoundsManual(true);
+
             }
         }
 
         if (selectedTime == "This week") {
             lifecycleScope.launch(Dispatchers.Main) {
-                graph?.removeAllSeries()
-                graph?.gridLabelRenderer?.verticalAxisTitle = ""
+                graph.removeAllSeries()
+                graph.gridLabelRenderer.verticalAxisTitle = ""
                 val gD: GraphData by viewModels()
                 val series = gD.getGraphDataPointsOfThisWeek(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
                 series.setAnimated(true)
-                graph?.gridLabelRenderer?.numHorizontalLabels = 7
-                graph?.gridLabelRenderer?.horizontalAxisTitle = "day of week"
+                graph.gridLabelRenderer?.numHorizontalLabels = 8
+                graph.gridLabelRenderer?.horizontalAxisTitle = "day of week"
                 if (selectedVariable == "Average speed") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "km/h"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "km/h"
                 }
                 if (selectedVariable == "Distance") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "kilometers"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "kilometers"
                 }
-                graph?.addSeries(series)
+                graph.addSeries(series)
+                graph.getViewport().setMaxX(7.0)
+                graph.getViewport().setXAxisBoundsManual(true);
+
+
             }
         }
 
         if (selectedTime == "This month") {
             lifecycleScope.launch(Dispatchers.Main) {
-                graph?.removeAllSeries()
-                graph?.gridLabelRenderer?.verticalAxisTitle = ""
+                graph.removeAllSeries()
+                graph.gridLabelRenderer?.verticalAxisTitle = ""
                 val gD: GraphData by viewModels()
                 val series = gD.getGraphDataPointsOfThisMonth(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
                 series.setAnimated(true)
-                graph?.gridLabelRenderer?.numHorizontalLabels = 16
-                graph?.gridLabelRenderer?.horizontalAxisTitle = "day of month"
+                graph.gridLabelRenderer?.numHorizontalLabels = 16
+                graph.gridLabelRenderer?.horizontalAxisTitle = "day of month"
                 if (selectedVariable == "Average speed") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "km/h"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "km/h"
                 }
                 if (selectedVariable == "Distance") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "kilometers"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "kilometers"
                 }
-                graph?.addSeries(series)
+                graph.addSeries(series)
+                graph.getViewport().setMaxX(32.0)
+                graph.getViewport().setXAxisBoundsManual(true);
             }
         }
 
         if (selectedTime == "This year") {
             lifecycleScope.launch(Dispatchers.Main) {
-                graph?.removeAllSeries()
-                graph?.gridLabelRenderer?.verticalAxisTitle = ""
+                graph.removeAllSeries()
+                graph.gridLabelRenderer?.verticalAxisTitle = ""
                 val gD: GraphData by viewModels()
                 val series = gD.getGraphDataPointsOfThisYear(selectedVariable)
                 series.dataPointsRadius = 10F
                 series.thickness = 8
                 series.setAnimated(true)
-                graph?.gridLabelRenderer?.numHorizontalLabels = 12
-                graph?.gridLabelRenderer?.horizontalAxisTitle = "month of year"
+                graph.gridLabelRenderer?.numHorizontalLabels = 12
+                graph.gridLabelRenderer?.horizontalAxisTitle = "month of year"
                 if (selectedVariable == "Average speed") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "km/h"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "km/h"
                 }
                 if (selectedVariable == "Distance") {
-                    graph?.gridLabelRenderer?.verticalAxisTitle = "kilometers"
+                    graph.gridLabelRenderer?.verticalAxisTitle = "kilometers"
                 }
-                graph?.addSeries(series)
+                graph.addSeries(series)
+                graph.getViewport().setMaxX(13.0)
+                graph.getViewport().setXAxisBoundsManual(true);
             }
         }
-        graph?.gridLabelRenderer?.setHumanRounding(true)
+
+
+        graph.gridLabelRenderer?.setHumanRounding(true)
     }
 }

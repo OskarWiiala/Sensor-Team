@@ -1,21 +1,15 @@
 package com.georgv.sporttrackerapp.viewmodel
 
-import SessionRepository
 import android.app.Application
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asLiveData
-import com.georgv.sporttrackerapp.TrackingSessionFragment
+import androidx.lifecycle.*
 import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
-import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.Session
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import java.util.*
 import kotlinx.coroutines.*
-import org.osmdroid.util.GeoPoint
+import SessionRepository
+
 
 
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
@@ -30,15 +24,6 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     val session: LiveData<TrackedSession>
         get() = _session
 
-
-    private var locationArray: MutableList<GeoPoint> = mutableListOf()
-    fun getLocationArray(): List<GeoPoint> = locationArray
-
-    fun addToLocationArray(location: GeoPoint) {
-        locationArray.add(location)
-    }
-
-    private var userWeightValue:Double = 0.0
 
 
 

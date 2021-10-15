@@ -15,21 +15,8 @@ import java.util.*
 
 class SessionRepository(context:Application) {
     private val sessionDao: SessionDao = SessionDB.get(context).sessionDao()
-
-
     fun getData(): LiveData<List<Session>> {
         return sessionDao.getAllFinishedSessions(false)
     }
-
-//    fun getLocationData():TrackedSessionLiveData {
-//        return TrackedSessionLiveData(context)
-//    }
-
-
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    fun getDay(): List<Session> {
-//        LocalDate.parse(Date().toString(), DateTimeFormatter.ofPattern("dd"))
-//        return SessionListDao.getMainVariablesToday(TypeConverterUtil().localDateToTimestamp(LocalDate.parse(Date().toString(), DateTimeFormatter.ofPattern("dd"))))
-//    }
 
 }

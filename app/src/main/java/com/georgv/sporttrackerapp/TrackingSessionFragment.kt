@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -52,12 +51,7 @@ class TrackingSessionFragment : Fragment() {
     private lateinit var travelSteps: TextView
     private lateinit var travelCalories: TextView
     private lateinit var constraintLayout:ConstraintLayout
-
-
-    private lateinit var progressDistance: ProgressBar
-    private lateinit var progressSpeed: ProgressBar
-    private lateinit var progressSteps: ProgressBar
-    private lateinit var progressCalories: ProgressBar
+    private lateinit var timerText:TextView
 
     private var btnStart: MaterialButton? = null
     private var btnStop: ImageButton? = null
@@ -83,17 +77,17 @@ class TrackingSessionFragment : Fragment() {
             PreferenceManager.getDefaultSharedPreferences(activityContext)
         )
         super.onViewCreated(view, savedInstanceState)
-
         setViews(view)
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
         marker = Marker(mapView)
-        observeData(view)
 
         Permissions().askForPermissions(
             "ACCESS_FINE_LOCATION + ACTIVITY_RECOGNITION",
             requireActivity()
         )
+
+        observeData()
 
         btnStart?.setOnClickListener {
             startTrackingSession()
@@ -123,11 +117,11 @@ class TrackingSessionFragment : Fragment() {
         mapView.invalidate()
     }
 
-    private fun observeData(view: View) {
+    private fun observeData() {
         Log.d("observeData","we got here")
+        setOnlyMap()
         val sessionObserver = Observer<TrackedSession> { session ->
             if (session != null) {
-                Log.d("observeData", "not null sess")
                 setRunningView()
                 travelDistance.text =
                     (getString(R.string.travel_distance) + " " + session.session?.distance?.let {
@@ -148,7 +142,6 @@ class TrackingSessionFragment : Fragment() {
                     drawLine(list, session)
                 }
             } else {
-                Log.d("observeData", "null sess")
                 setDefaultView()
             }
         }
@@ -156,19 +149,15 @@ class TrackingSessionFragment : Fragment() {
     }
 
     private fun drawLine(list: List<GeoPoint>, session: TrackedSession) {
-        Log.d("drawLine", "list: $list")
-        Log.d("drawLine session", "session: ${session.session?.id}")
         for ((counter, _) in list.withIndex()) {
             val line = Polyline()
             val pPaint = Paint()
             pPaint.strokeWidth = 10F
             val currentSpeed = session.locationPoints[counter].currentSpeed
-            Log.d("drawLine","currentSpeed: $currentSpeed")
             val pColorMap = PolylineColorUtil(
                 requireContext(),
                 currentSpeed
             )
-
             // handles adding the correct GeoPoints to the line which are used to assign the correct line color based on user's speed.
             if (counter == 0 || counter == 1) {
                 val myArray = listOf(list[0])
@@ -197,26 +186,27 @@ class TrackingSessionFragment : Fragment() {
         travelSpeed = view.findViewById(R.id.travelSpeed)
         travelSteps = view.findViewById(R.id.travelSteps)
         travelCalories = view.findViewById(R.id.travelCalories)
+        timerText = view.findViewById(R.id.timerText)
         mapView = view.findViewById(R.id.mapView)
-
-
-
-//        progressDistance = view.findViewById(R.id.progressDistance)
-//        progressSpeed = view.findViewById(R.id.progressSpeed)
-//        progressSteps = view.findViewById(R.id.progressSteps)
-//        progressCalories = view.findViewById(R.id.progressCalories)
 
     }
 
-    private fun setRunningView() {
+    private fun setOnlyMap(){
         btnStart?.visibility = View.GONE
+        constraintLayout.visibility = View.GONE
+    }
+
+    private fun setRunningView() {
         constraintLayout.visibility = View.VISIBLE
+        btnStart?.animate()?.translationY(500f)
+        constraintLayout.animate().translationY(0f)
 
     }
 
     private fun setDefaultView() {
         btnStart?.visibility = View.VISIBLE
-        constraintLayout.visibility = View.GONE
+        btnStart?.animate()?.translationY(0f)
+        constraintLayout.animate().translationY(500f)
     }
 
     private fun startTrackingSession() {
@@ -227,7 +217,6 @@ class TrackingSessionFragment : Fragment() {
         when (perms) {
             0 -> {
                 try {
-                    Log.d("Location perms", "access 0")
                     // This dialog popup asks the user for their weight in kilograms. It is used in calorie counting
                     val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
                     // sets a custom dialog interface for the popup
@@ -242,7 +231,6 @@ class TrackingSessionFragment : Fragment() {
                     builder.setPositiveButton(
                         "OK"
                     ) { _, _ ->
-                        Log.d("confirm", "confirmed")
                         marker = Marker(mapView)
                         mapView.overlays.clear()
                         // Type check for user weight input
@@ -345,20 +333,6 @@ class TrackingSessionFragment : Fragment() {
             manager.createNotificationChannel(channel)
         }
     }
-
-//    private fun showProgressBars() {
-//        progressDistance.visibility = View.VISIBLE
-//        progressSpeed.visibility = View.VISIBLE
-//        progressSteps.visibility = View.VISIBLE
-//        progressCalories.visibility = View.VISIBLE
-//    }
-
-//    private fun hideProgressBars() {
-//        progressDistance.visibility = View.GONE
-//        progressSpeed.visibility = View.GONE
-//        progressSteps.visibility = View.GONE
-//        progressCalories.visibility = View.GONE
-//    }
 
     interface UserWeightReceiver {
         fun getWeight(weight: Double)

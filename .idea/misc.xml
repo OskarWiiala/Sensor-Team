@@ -15,11 +15,23 @@
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/history_item.xml" value="0.21388888888888888" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/layout/weight_prompt.xml" value="0.21388888888888888" />
         <entry key="..\:/Users/oskar/AndroidStudioProjects/Sensor-Team/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.264" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable-anydpi/ic_action_stop.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable-v24/ic_baseline_location_off_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable-v24/ic_update_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_back_svgrepo_com.xml" value="0.221875" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_baseline_stop_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_chart_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_save_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_stop_svgrepo_com.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/ic_tracker_24.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/rounded_corner.xml" value="0.2916666666666667" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/drawable/spinner_bg.xml" value="0.2916666666666667" />
         <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout-land/fragment_tracking_session.xml" value="0.31040564373897706" />
         <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/activity_main.xml" value="0.20052083333333334" />
-        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_statistics.xml" value="0.17831813576494426" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_session_detail.xml" value="0.20572916666666666" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_statistics.xml" value="0.22" />
         <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_tracker.xml" value="0.1308876811594203" />
-        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_tracking_session.xml" value="0.5" />
+        <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/fragment_tracking_session.xml" value="0.2" />
         <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/history_item.xml" value="0.15353260869565216" />
         <entry key="..\:/Users/selft/Desktop/SportTrackerApp/app/src/main/res/layout/session_detail.xml" value="0.17831813576494426" />
       </map>

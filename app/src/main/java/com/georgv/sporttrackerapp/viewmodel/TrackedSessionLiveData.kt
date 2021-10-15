@@ -1,23 +1,16 @@
 package com.georgv.sporttrackerapp.viewmodel
 
-import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import androidx.lifecycle.LiveData
-import com.georgv.sporttrackerapp.MainActivity
-import com.georgv.sporttrackerapp.TrackingSessionFragment
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.data.LocationPoint
-import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.database.SessionDB
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -26,7 +19,6 @@ import kotlinx.coroutines.*
 
 class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double) : SensorEventListener, SessionViewModel.SessionStateReciever {
     private val context = context;
-    val activity = context as MainActivity
     private val db by lazy { SessionDB.get(context) }
     private var sessionId: Long = sessionID
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -53,7 +45,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
                     val calories = CalorieCounter().countCalories(totalDistanceTraveled, userWeight)
-                    
+
                         db.sessionDao().update(
                             true,
                             null,

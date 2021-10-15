@@ -13,7 +13,7 @@
     <string name="new_tracking_session">new session</string>
 
     <!--Strings for TrackingSessionFragment-->
-    <string name="start_tracking">start tracking</string>
+    <string name="start_tracking">start session</string>
     <string name="stop_tracking">stop tracking</string>
     <string name="travel_address">Address:</string>
     <string name="travel_distance">Distance: </string>
