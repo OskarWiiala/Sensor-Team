@@ -1,5 +1,6 @@
 package com.georgv.sporttrackerapp.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -7,36 +8,36 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
 import android.widget.Toast
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
 import com.georgv.sporttrackerapp.customHandlers.CalorieCounter
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.database.SessionDB
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.*
 import kotlinx.coroutines.*
 
 
-class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double) : SensorEventListener, SessionViewModel.SessionStateReciever {
-    private val context = context;
+object TrackedSessionLiveData : SensorEventListener{
+
+    private val context = Application()
     private val db by lazy { SessionDB.get(context) }
-    private var sessionId: Long = sessionID
-    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    var sessionId: Long = 0
+    var weight: Double = 50.0
+    lateinit var fusedLocationClient:FusedLocationProviderClient
+    lateinit var sensorManager:SensorManager
 
     private val speedList = mutableListOf<Float>()
     private var averageSpeed: Float = 0f
     private var totalDistanceTraveled = 0f
     private var steps: Long = 0
 
-    companion object {
+
         val locationRequest: LocationRequest = LocationRequest.create().apply {
             interval = 2000
             fastestInterval = 2000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
-    }
 
-    val locationCallback = object : LocationCallback() {
+
+    private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
             locationResult ?: return
             for (location in locationResult.locations) {
@@ -44,7 +45,7 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
                 GlobalScope.launch {
                     db.locationPointDao().insert(locPoint)
                     totalDistanceTraveled = countDistance().await()
-                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, userWeight)
+                    val calories = CalorieCounter().countCalories(totalDistanceTraveled, 5.0)
 
                         db.sessionDao().update(
                             true,
@@ -63,11 +64,6 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
 
 
 
-    init {
-        this.switchOnStepCounter(true)
-    }
-
-
 
     private fun setLocationPoint(locationPoint: Location): LocationPoint {
         val newLocPoint =
@@ -80,7 +76,6 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
             )
         speedList.add(newLocPoint.currentSpeed)
         averageSpeed = speedList.sum() / speedList.count()
-        //value = newLocPoint
         return newLocPoint
     }
 
@@ -96,10 +91,12 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
                 } catch (e:SecurityException) {
 
                 }
+        switchOnStepCounter(true)
     }
 
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        switchOnStepCounter(false)
     }
 
 
@@ -123,7 +120,6 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
 
 
     private fun switchOnStepCounter(on:Boolean) {
-        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
         if(on) {
             if (stepSensor == null) {
@@ -150,9 +146,6 @@ class TrackedSessionLiveData(context: Context, sessionID:Long,userWeight:Double)
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 
-    override fun setRunning(state: Boolean):Boolean {
-        return state
-    }
 
 
 }

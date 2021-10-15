@@ -30,7 +30,10 @@ import com.georgv.sporttrackerapp.customHandlers.TypeConverterUtil
 import com.georgv.sporttrackerapp.data.LocationPoint
 import com.georgv.sporttrackerapp.data.TrackedSession
 import com.georgv.sporttrackerapp.viewmodel.SessionViewModel
+import com.georgv.sporttrackerapp.viewmodel.TrackedSessionLiveData
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -50,8 +53,8 @@ class TrackingSessionFragment : Fragment() {
     private lateinit var travelSpeed: TextView
     private lateinit var travelSteps: TextView
     private lateinit var travelCalories: TextView
-    private lateinit var constraintLayout:ConstraintLayout
-    private lateinit var timerText:TextView
+    private lateinit var constraintLayout: ConstraintLayout
+    private lateinit var timerText: TextView
 
     private var btnStart: MaterialButton? = null
     private var btnStop: ImageButton? = null
@@ -91,7 +94,6 @@ class TrackingSessionFragment : Fragment() {
 
         btnStart?.setOnClickListener {
             startTrackingSession()
-
         }
         btnStop?.setOnClickListener {
             endTrackingSession()
@@ -118,7 +120,7 @@ class TrackingSessionFragment : Fragment() {
     }
 
     private fun observeData() {
-        Log.d("observeData","we got here")
+        Log.d("observeData", "we got here")
         setOnlyMap()
         val sessionObserver = Observer<TrackedSession> { session ->
             if (session != null) {
@@ -191,7 +193,7 @@ class TrackingSessionFragment : Fragment() {
 
     }
 
-    private fun setOnlyMap(){
+    private fun setOnlyMap() {
         btnStart?.visibility = View.GONE
         constraintLayout.visibility = View.GONE
     }
@@ -217,6 +219,7 @@ class TrackingSessionFragment : Fragment() {
         when (perms) {
             0 -> {
                 try {
+                    btnStart?.setEnabled(false)
                     // This dialog popup asks the user for their weight in kilograms. It is used in calorie counting
                     val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
                     // sets a custom dialog interface for the popup
@@ -231,24 +234,19 @@ class TrackingSessionFragment : Fragment() {
                     builder.setPositiveButton(
                         "OK"
                     ) { _, _ ->
+                        btnStart?.setEnabled(true)
                         marker = Marker(mapView)
                         mapView.overlays.clear()
                         // Type check for user weight input
                         val userInputIntOrNull = userInput.text.toString().toIntOrNull()
                         if (userInput.text.isNotEmpty() && userInputIntOrNull != null) {
                             val userWeightKg = userInput.text.toString().toDouble()
-
-                            val activity = requireView().context as MainActivity
-                            val delegate = activity as UserWeightReceiver
-                            delegate.getWeight(userWeightKg)
-
+                            TrackedSessionLiveData.weight = userWeightKg
                             svm.startSession()
-                            runBlocking {
-                                activity.createTracker()
-                            }
-
+                            TrackedSessionLiveData.startLocationUpdates()
                         } else {
                             Log.d("TSF", "user weight is in incorrect format or is empty")
+                            btnStart?.setEnabled(true)
                         }
                     }
 
@@ -257,11 +255,18 @@ class TrackingSessionFragment : Fragment() {
                         "Cancel"
                     ) { _, _ ->
                         Log.d("cancel", "canceled dialog interface")
+                        btnStart?.setEnabled(true)
                     }
 
                     // Puts the popup to the screen
                     val dialog: AlertDialog = builder.create()
                     dialog.show()
+                    dialog.setOnDismissListener{
+                        btnStart?.setEnabled(true)
+                    }
+
+
+
 
                 } catch (e: Error) {
                     Log.d("btnStart", "requestLocationUpdates error: $e")
@@ -287,7 +292,7 @@ class TrackingSessionFragment : Fragment() {
         ) { _, _ ->
             Log.d("confirm", "confirmed")
             val activity = requireView().context as MainActivity
-            activity.stopTracker()
+            TrackedSessionLiveData.stopLocationUpdates()
             svm.stopSession()
             counter = 0
 
@@ -332,9 +337,5 @@ class TrackingSessionFragment : Fragment() {
                 requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
-    }
-
-    interface UserWeightReceiver {
-        fun getWeight(weight: Double)
     }
 }

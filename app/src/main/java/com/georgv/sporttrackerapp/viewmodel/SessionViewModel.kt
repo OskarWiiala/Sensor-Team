@@ -47,7 +47,8 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     fun startSession() {
         runBlocking {
             val createSession = GlobalScope.async { storeToDatabase() }
-            createSession.await()
+            val id = createSession.await()
+            TrackedSessionLiveData.sessionId = id
             _session
         }
     }
@@ -60,7 +61,5 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-    interface SessionStateReciever{
-        fun setRunning(state: Boolean):Boolean
-    }
+
 }
